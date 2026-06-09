@@ -1,0 +1,2183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Figuras y Silencios">
+<meta name="theme-color" content="#0f172a">
+<title>🎵 Figuras y Silencios</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN SYSTEM
+═══════════════════════════════════════════ */
+:root {
+  --ink:    #0f172a;
+  --ink2:   #1e293b;
+  --paper:  #fefce8;
+  --paper2: #fef9c3;
+  --cream:  #fffbeb;
+
+  --r: #ef4444; --r2: #b91c1c;
+  --o: #f97316; --o2: #c2410c;
+  --y: #eab308; --y2: #a16207;
+  --g: #22c55e; --g2: #15803d;
+  --c: #06b6d4; --c2: #0e7490;
+  --b: #3b82f6; --b2: #1d4ed8;
+  --p: #a855f7; --p2: #7e22ce;
+  --pk:#ec4899; --pk2:#be185d;
+
+  /* figure colors */
+  --col-redonda:    #ef4444;
+  --col-blanca:     #f97316;
+  --col-negra:      #eab308;
+  --col-corchea:    #22c55e;
+  --col-semicorchea:#06b6d4;
+  --col-fusa:       #3b82f6;
+  --col-semifusa:   #a855f7;
+
+  --T: cubic-bezier(.175,.885,.32,1.275);
+  --radius: 18px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+html, body { height:100%; overflow:hidden; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--ink);
+  color: var(--paper);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ═══════════════════════════════════════════
+   SPLASH
+═══════════════════════════════════════════ */
+#splash {
+  position: fixed; inset: 0; z-index: 9000;
+  background: linear-gradient(160deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px; padding: 30px;
+  transition: opacity .7s ease, transform .7s ease;
+}
+#splash.hide { opacity:0; transform:scale(1.08); pointer-events:none; }
+
+.sp-stars { font-size: 2.5rem; letter-spacing: 8px; animation: starSpin 4s linear infinite; }
+@keyframes starSpin { 0%,100%{transform:rotate(-5deg) scale(1)} 50%{transform:rotate(5deg) scale(1.05)} }
+
+.sp-title {
+  font-family: 'Fredoka', cursive; font-size: clamp(1.8rem, 6vw, 3rem); font-weight: 700;
+  text-align: center; line-height: 1.2;
+  background: linear-gradient(135deg, #fbbf24, #f97316, #ef4444);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.sp-sub { font-size: .95rem; color: #94a3b8; text-align: center; line-height: 1.6; max-width: 320px; }
+.sp-author { font-size: .75rem; color: #475569; font-weight: 700; }
+
+.sp-notes-row { display:flex; gap:20px; justify-content:center; margin: 8px 0; }
+.sp-note { font-size: 2.5rem; animation: noteBounce 1.4s ease-in-out infinite; }
+.sp-note:nth-child(1){animation-delay:0s} .sp-note:nth-child(2){animation-delay:.18s}
+.sp-note:nth-child(3){animation-delay:.36s} .sp-note:nth-child(4){animation-delay:.54s}
+@keyframes noteBounce { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-14px) rotate(5deg)} }
+
+.sp-btn {
+  font-family: 'Fredoka', cursive; font-weight: 700; font-size: 1.2rem;
+  padding: 16px 48px; border-radius: 50px; border: none; cursor: pointer;
+  background: linear-gradient(135deg, #fbbf24, #f97316);
+  color: white; margin-top: 8px;
+  box-shadow: 0 0 0 0 rgba(249,115,22,.6);
+  animation: pulseGlow 2s ease-in-out infinite;
+  transition: transform .2s;
+}
+@keyframes pulseGlow { 0%,100%{box-shadow:0 0 0 0 rgba(249,115,22,.5)} 50%{box-shadow:0 0 0 16px rgba(249,115,22,0)} }
+.sp-btn:active { transform: scale(.94); }
+
+/* ═══════════════════════════════════════════
+   SHELL
+═══════════════════════════════════════════ */
+#app { height: 100vh; display: flex; flex-direction: column; }
+
+/* TOP BAR */
+.topbar {
+  flex-shrink: 0;
+  background: rgba(15,23,42,.95); backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  padding: 8px 14px;
+  display: flex; align-items: center; gap: 10px;
+  z-index: 100;
+}
+.tb-title {
+  font-family: 'Fredoka', cursive; font-size: clamp(.85rem,2.5vw,1.1rem); font-weight: 700;
+  background: linear-gradient(135deg, #fbbf24, #f97316);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  flex: 1;
+}
+.tb-right { display:flex; align-items:center; gap:8px; }
+.tb-score {
+  font-family: 'Fredoka', cursive; font-size: .9rem; font-weight: 700;
+  color: #fbbf24;
+}
+.lang-btn {
+  font-family: 'Nunito', sans-serif; font-weight: 900; font-size: .72rem;
+  padding: 4px 10px; border-radius: 14px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+  color: #94a3b8; cursor: pointer; transition: all .2s;
+}
+.lang-btn:hover { background: rgba(249,115,22,.2); color: #f97316; }
+
+/* SCENE DOTS */
+.scene-nav {
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 6px 14px;
+  background: rgba(15,23,42,.8);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.sdot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(255,255,255,.18); cursor: pointer;
+  transition: all .3s var(--T); border: 2px solid transparent;
+  flex-shrink: 0;
+}
+.sdot.on { background: #f97316; border-color: #fbbf24; transform: scale(1.4); }
+.sdot:hover { background: rgba(249,115,22,.5); }
+
+/* STARS ROW */
+.stars-row {
+  display:flex; gap:6px; align-items:center; justify-content:center;
+  padding: 4px 14px; background: rgba(15,23,42,.6);
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.star-item { display:flex; flex-direction:column; align-items:center; gap:2px; }
+.star-lbl { font-size:.55rem; color:#475569; font-weight:700; }
+.star-wrap { display:flex; gap:1px; }
+.star { font-size:.8rem; opacity:.2; transition: all .35s; }
+.star.on { opacity:1; filter: drop-shadow(0 0 4px #fbbf24); animation: starPop .5s var(--T); }
+@keyframes starPop { 0%{transform:scale(0) rotate(-180deg)} 70%{transform:scale(1.4) rotate(10deg)} 100%{transform:scale(1)} }
+
+/* MAIN SCENE AREA */
+.scene-wrap { flex: 1; overflow: hidden; position: relative; }
+.scene {
+  position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden;
+  padding: 14px; display: none;
+  animation: sceneIn .45s var(--T);
+}
+.scene.on { display: block; }
+@keyframes sceneIn { from{opacity:0;transform:translateY(18px) scale(.97)} to{opacity:1;transform:none} }
+
+/* NAV ARROWS */
+.nav-arrows {
+  position: fixed; bottom: 12px; right: 14px; z-index: 200;
+  display: flex; gap: 8px;
+}
+.nav-arr {
+  font-size: 1.2rem; width: 44px; height: 44px; border-radius: 50%;
+  border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all .25s var(--T); font-weight: 900;
+  box-shadow: 0 4px 16px rgba(0,0,0,.4);
+}
+.nav-arr.prev { background: rgba(255,255,255,.1); color: #94a3b8; }
+.nav-arr.next { background: linear-gradient(135deg,#fbbf24,#f97316); color: white; }
+.nav-arr:active { transform: scale(.88); }
+.nav-arr:disabled { opacity:.3; pointer-events:none; }
+
+/* ═══════════════════════════════════════════
+   SHARED COMPONENTS
+═══════════════════════════════════════════ */
+.scene-header {
+  text-align: center; margin-bottom: 14px;
+}
+.scene-num {
+  font-size: .68rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase;
+  color: #f97316; margin-bottom: 3px;
+}
+.scene-title {
+  font-family: 'Fredoka', cursive; font-size: clamp(1.1rem,3.5vw,1.6rem); font-weight: 700;
+  color: var(--paper); line-height: 1.2;
+}
+.scene-desc { font-size: .8rem; color: #94a3b8; margin-top: 4px; line-height: 1.5; }
+
+.card {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 12px;
+  backdrop-filter: blur(4px);
+}
+
+/* ═══════════════════════════════════════════
+   CONFETTI
+═══════════════════════════════════════════ */
+#conf { position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden; }
+.cp { position:absolute;top:-14px;border-radius:2px;animation:fall linear forwards; }
+@keyframes fall { 0%{transform:translateY(0) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+
+/* ═══════════════════════════════════════════
+   ESCENA 1 — EL RELOJ
+═══════════════════════════════════════════ */
+.clocks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+.clock-card {
+  background: rgba(255,255,255,.05);
+  border: 1.5px solid rgba(255,255,255,.1);
+  border-radius: 16px; padding: 14px 10px 10px;
+  text-align: center; cursor: pointer;
+  transition: all .28s var(--T);
+  position: relative; overflow: hidden;
+}
+.clock-card:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 12px 28px rgba(0,0,0,.4); }
+.clock-card:active { transform: scale(.94); }
+.clock-card.playing { animation: cardPop .35s var(--T); }
+@keyframes cardPop { 0%{transform:scale(1)} 45%{transform:scale(1.18)} 100%{transform:scale(1)} }
+.cc-canvas { display: block; margin: 0 auto 8px; border-radius: 50%; }
+.cc-frac {
+  font-family: 'Fredoka', cursive; font-size: 1.3rem; font-weight: 700;
+  display: block; margin-bottom: 2px;
+}
+.cc-name { font-size: .75rem; font-weight: 700; color: #94a3b8; }
+.cc-beats { font-size: .65rem; color: #475569; margin-top: 2px; }
+
+/* Ripple rings */
+.c-rings { position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:14px; }
+.c-ring {
+  position:absolute;top:50%;left:50%;border-radius:50%;
+  border:2px solid currentColor;width:30px;height:30px;opacity:0;
+  transform:translate(-50%,-50%) scale(0);
+}
+.clock-card.playing .c-ring:nth-child(1){animation:cripple .7s ease-out 0s;}
+.clock-card.playing .c-ring:nth-child(2){animation:cripple .7s ease-out .13s;}
+.clock-card.playing .c-ring:nth-child(3){animation:cripple .7s ease-out .26s;}
+@keyframes cripple { 0%{opacity:.9;transform:translate(-50%,-50%) scale(.2)} 100%{opacity:0;transform:translate(-50%,-50%) scale(4)} }
+
+/* Compás cursor */
+.compas-cursor-wrap {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px; padding: 12px 14px; margin-top: 4px;
+}
+.cc-title { font-size: .72rem; font-weight: 700; color: #64748b; margin-bottom: 8px; }
+.cursor-track {
+  width: 100%; height: 22px; background: rgba(255,255,255,.07);
+  border-radius: 6px; position: relative; overflow: hidden;
+  border: 1px solid rgba(255,255,255,.1);
+}
+.cursor-fill {
+  position: absolute; left: 0; top: 0; height: 100%;
+  border-radius: 6px; width: 0%;
+  display: flex; align-items: center; padding-left: 8px;
+  font-size: .62rem; font-weight: 900; color: rgba(255,255,255,.9);
+}
+.cursor-line {
+  position: absolute; top: 0; height: 100%; width: 3px;
+  background: white; border-radius: 2px;
+  box-shadow: 0 0 8px white;
+  left: 0%; transition: none;
+}
+
+/* ═══════════════════════════════════════════
+   ESCENA 2 — BARRAS DINÁMICAS PROPORCIONALES
+═══════════════════════════════════════════ */
+.bar-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Una fila por figura: icono + barra completa del compás */
+.bar-row {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 14px; padding: 10px 12px;
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer; transition: all .25s var(--T);
+}
+.bar-row:hover { background: rgba(255,255,255,.08); }
+.bar-row:active { transform: scale(.98); }
+.bar-row.playing { border-color: currentColor; }
+
+/* Izquierda: figura + silencio apilados */
+.bar-icons { display:flex; flex-direction:column; align-items:center; gap:4px; flex-shrink:0; width:48px; }
+.bar-fig-icon { width:36px; height:46px; }
+.bar-fig-icon svg { width:100%; height:100%; }
+.bar-sil-icon { width:32px; height:28px; opacity:.7; }
+.bar-sil-icon svg { width:100%; height:100%; }
+
+/* Info central: nombre + fracción */
+.bar-info { flex-shrink:0; width:58px; }
+.bar-name { font-family:'Fredoka',cursive; font-weight:700; font-size:.78rem; line-height:1.1; }
+.bar-frac { font-family:'Fredoka',cursive; font-size:1rem; font-weight:700; }
+.bar-beats { font-size:.58rem; color:#64748b; font-weight:700; margin-top:1px; }
+
+/* Zona de barras: ocupa todo el ancho restante */
+.bar-zone { flex:1; display:flex; flex-direction:column; gap:5px; min-width:0; }
+.bar-zone-lbl { font-size:.55rem; font-weight:900; text-transform:uppercase; letter-spacing:1px; color:#475569; }
+
+/* Barra referencia: representa 1 compás completo */
+.bar-reference {
+  width:100%; height:10px;
+  background: rgba(255,255,255,.06);
+  border-radius:4px; position:relative;
+  border:1px solid rgba(255,255,255,.1);
+  overflow:hidden;
+}
+.bar-ref-tick {
+  position:absolute; top:0; height:100%; width:1px;
+  background:rgba(255,255,255,.15);
+}
+
+/* Barra de SONIDO — ancho = val * 100% del compás */
+.bar-sound-wrap {
+  width:100%; height:18px;
+  background: rgba(255,255,255,.05);
+  border-radius:6px; position:relative;
+  border:1px solid rgba(255,255,255,.08);
+  overflow:visible;
+}
+.bar-sound-prop {
+  /* width set inline = fracción del compás */
+  height:100%; border-radius:6px; position:relative;
+  overflow:hidden; min-width:4px;
+}
+.dyn-bar-segs {
+  position:absolute; inset:0;
+  display:flex; gap:1px; padding:1px;
+  pointer-events:none;
+}
+.dyn-bar-seg { flex:1; border-radius:3px; opacity:.18; transition:opacity .06s; }
+.dyn-bar-seg.lit { opacity:1; }
+.dyn-bar-fill {
+  position:absolute; left:0; top:0; height:100%; width:0%;
+  border-radius:6px; pointer-events:none;
+}
+
+/* Barra de SILENCIO — mismo ancho proporcional, estilo diferente */
+.bar-silence-wrap {
+  width:100%; height:18px;
+  background: rgba(255,255,255,.04);
+  border-radius:6px; position:relative;
+  border:1px dashed rgba(255,255,255,.1);
+  overflow:visible;
+}
+.bar-silence-prop {
+  height:100%; border-radius:6px; position:relative;
+  overflow:hidden; min-width:4px;
+  background: rgba(255,255,255,.06);
+  border:1px dashed rgba(255,255,255,.2);
+}
+.dyn-sil-fill {
+  position:absolute; left:0; top:0; height:100%; width:0%;
+  border-radius:5px; pointer-events:none;
+}
+.sil-symbol-inline {
+  position:absolute; right:-28px; top:50%; transform:translateY(-50%);
+  font-size:.7rem; font-weight:900; opacity:.6;
+  white-space:nowrap;
+}
+.bar-sil-label {
+  font-size:.55rem; font-weight:900; color:#475569;
+  text-transform:uppercase; letter-spacing:1px;
+  position:absolute; left:4px; top:50%; transform:translateY(-50%);
+  pointer-events:none; white-space:nowrap;
+}
+
+/* Tooltip fracción en el extremo de la barra */
+.bar-frac-tag {
+  position:absolute; right:-2px; top:-18px;
+  font-family:'Fredoka',cursive; font-size:.72rem; font-weight:700;
+  background:var(--ink2); padding:1px 5px; border-radius:4px;
+  white-space:nowrap; pointer-events:none;
+  border:1px solid rgba(255,255,255,.1);
+}
+
+/* Barra proporcional dentro de la clock card */
+.cc-bar-wrap {
+  width: 100%; margin-top: 6px;
+}
+.cc-bar-ref {
+  width:100%; height:6px;
+  background:rgba(255,255,255,.07);
+  border-radius:3px; position:relative;
+  border:1px solid rgba(255,255,255,.1);
+  margin-bottom:3px; overflow:hidden;
+}
+.cc-bar-ref-tick {
+  position:absolute; top:0; height:100%; width:1px;
+  background:rgba(255,255,255,.2);
+}
+.cc-bar-sound-outer {
+  width:100%; height:12px;
+  background:rgba(255,255,255,.05);
+  border-radius:5px; position:relative;
+  border:1px solid rgba(255,255,255,.08);
+  overflow:visible; margin-bottom:2px;
+}
+.cc-bar-sound-inner {
+  height:100%; border-radius:4px;
+  position:relative; overflow:hidden; min-width:3px;
+}
+.cc-bar-lbl {
+  font-size:.5rem; font-weight:900; text-transform:uppercase;
+  letter-spacing:.8px; color:#475569; margin-bottom:1px;
+  display:block; text-align:left;
+}
+
+/* ═══════════════════════════════════════════
+   ESCENA 3 — TOCA Y ESCUCHA
+═══════════════════════════════════════════ */
+.touch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+}
+.touch-card {
+  background: rgba(255,255,255,.05); border: 2px solid rgba(255,255,255,.1);
+  border-radius: 16px; padding: 14px 8px 10px;
+  text-align: center; cursor: pointer;
+  transition: all .28s var(--T); position: relative; overflow: hidden;
+}
+.touch-card:hover { transform: translateY(-3px) scale(1.04); }
+.touch-card:active { transform: scale(.9); }
+.touch-card.playing { animation: cardPop .35s var(--T); }
+
+.tc-fig { width: 48px; height: 62px; margin: 0 auto 7px; }
+.tc-fig svg { width:100%; height:100%; }
+.tc-name { font-family:'Fredoka',cursive; font-weight:700; font-size:.82rem; line-height:1.2; }
+.tc-frac { font-family:'Fredoka',cursive; font-size:1.1rem; font-weight:700; display:block; margin:2px 0; }
+.tc-beats { font-size:.62rem; color:#64748b; font-weight:700; }
+.tc-type { font-size:.58rem; text-transform:uppercase; letter-spacing:1px; font-weight:900; margin-bottom:3px; }
+
+/* Live display */
+.live-display {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px; padding: 12px 14px; margin-bottom: 12px;
+  display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+}
+.ld-clock { flex-shrink: 0; }
+.ld-info { flex: 1; min-width: 140px; }
+.ld-name { font-family:'Fredoka',cursive; font-size:1rem; font-weight:700; margin-bottom:4px; }
+.ld-bar-wrap { margin-top:4px; }
+.ld-bar-lbl { font-size:.62rem; color:#64748b; font-weight:700; margin-bottom:3px; }
+.ld-wave { width:100%; height:40px; border-radius:8px; background:rgba(0,0,0,.2); margin-top:6px; border:1px solid rgba(255,255,255,.06); }
+
+.section-label {
+  font-size:.68rem; font-weight:900; letter-spacing:2px; text-transform:uppercase;
+  color:#f97316; margin:12px 0 6px; display:block;
+}
+
+/* ═══════════════════════════════════════════
+   ESCENA 4 — ARRASTRA LA FIGURA (drag-and-drop)
+═══════════════════════════════════════════ */
+.dnd-consigna {
+  background: linear-gradient(135deg, rgba(59,130,246,.15), rgba(168,85,247,.15));
+  border: 1px solid rgba(59,130,246,.3);
+  border-radius: 14px; padding: 12px 16px; margin-bottom: 14px;
+  font-family: 'Fredoka', cursive; font-weight: 700;
+  font-size: clamp(.85rem,2.5vw,1.05rem); text-align: center; color: var(--paper);
+}
+
+.dnd-play-btn {
+  display: flex; align-items: center; gap: 10px; justify-content: center;
+  margin-bottom: 14px;
+}
+.play-sound-btn {
+  font-family: 'Fredoka', cursive; font-weight: 700; font-size: .95rem;
+  padding: 10px 24px; border-radius: 50px; border: none; cursor: pointer;
+  background: linear-gradient(135deg,#3b82f6,#a855f7); color: white;
+  transition: all .25s var(--T); box-shadow: 0 4px 14px rgba(59,130,246,.35);
+  display: flex; align-items: center; gap: 8px;
+}
+.play-sound-btn:active { transform: scale(.93); }
+.play-sound-btn.playing { animation: btnPulse .4s ease; }
+@keyframes btnPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+
+/* Drop zones */
+.dnd-zones {
+  display: flex; gap: 10px; justify-content: center;
+  flex-wrap: wrap; margin-bottom: 14px;
+}
+.drop-zone {
+  width: 72px; height: 72px; border-radius: 14px;
+  border: 2.5px dashed rgba(255,255,255,.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .65rem; color: #475569; font-weight: 700;
+  transition: all .25s var(--T); position: relative; flex-shrink: 0;
+  text-align: center;
+}
+.drop-zone.over { border-color: #f97316; background: rgba(249,115,22,.12); transform: scale(1.08); }
+.drop-zone.correct { border-color: #22c55e; background: rgba(34,197,94,.15); animation: correctPop .5s var(--T); }
+.drop-zone.wrong { border-color: #ef4444; background: rgba(239,68,68,.15); animation: wrongShake .4s ease; }
+@keyframes correctPop { 0%,100%{transform:scale(1)} 40%{transform:scale(1.18)} }
+@keyframes wrongShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 75%{transform:translateX(7px)} }
+.dz-label { font-family:'Fredoka',cursive; font-size:.85rem; font-weight:700; }
+
+/* Draggable items */
+.dnd-items-wrap {
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px; padding: 12px; margin-bottom: 8px;
+}
+.dnd-items-label { font-size:.65rem; font-weight:900; letter-spacing:2px; text-transform:uppercase; color:#64748b; margin-bottom:10px; }
+.dnd-items { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+.drag-item {
+  width: 62px; height: 62px; border-radius: 12px;
+  background: rgba(255,255,255,.07); border: 1.5px solid rgba(255,255,255,.15);
+  display: flex; flex-direction:column; align-items: center; justify-content: center;
+  cursor: grab; transition: all .2s var(--T); gap:3px;
+  -webkit-user-drag: element;
+}
+.drag-item:hover { transform: translateY(-3px) scale(1.08); box-shadow: 0 8px 20px rgba(0,0,0,.4); }
+.drag-item:active { cursor: grabbing; transform: scale(.92); opacity:.8; }
+.drag-item.used { opacity:.25; pointer-events:none; }
+.di-icon { width:32px;height:40px; }
+.di-icon svg { width:100%;height:100%; }
+.di-label { font-size:.6rem; font-weight:700; }
+
+/* DND feedback */
+.dnd-feedback {
+  text-align:center; font-family:'Fredoka',cursive; font-size:1rem; font-weight:700;
+  min-height:28px; color:#22c55e; transition:all .2s;
+}
+.dnd-score { text-align:center; font-size:.78rem; color:#64748b; margin-top:4px; }
+.dnd-next-btn {
+  display:none; font-family:'Fredoka',cursive; font-weight:700; font-size:.9rem;
+  padding:10px 24px; border-radius:50px; border:none; cursor:pointer;
+  background:linear-gradient(135deg,#22c55e,#06b6d4); color:white;
+  margin:8px auto; transition:all .25s; box-shadow:0 4px 14px rgba(34,197,94,.3);
+}
+.dnd-next-btn.show { display:block; animation:popIn .3s var(--T); }
+.dnd-next-btn:active { transform:scale(.92); }
+@keyframes popIn { from{opacity:0;transform:translateY(14px) scale(.94)} to{opacity:1;transform:none} }
+
+/* ═══════════════════════════════════════════
+   ESCENA 5 — SECTORES CIRCULARES (Equipartición)
+═══════════════════════════════════════════ */
+.eq-consigna {
+  background: linear-gradient(135deg,rgba(234,179,8,.12),rgba(249,115,22,.12));
+  border:1px solid rgba(234,179,8,.3); border-radius:14px;
+  padding:12px 16px; margin-bottom:14px;
+  font-family:'Fredoka',cursive; font-weight:700;
+  font-size:clamp(.85rem,2.5vw,1rem); text-align:center; color:var(--paper);
+}
+.eq-level { display:flex; align-items:center; gap:8px; justify-content:center; margin-bottom:12px; flex-wrap:wrap; }
+.eq-lbtn {
+  font-family:'Fredoka',cursive; font-weight:700; font-size:.82rem;
+  padding:7px 16px; border-radius:50px; border:1.5px solid rgba(255,255,255,.15);
+  background:rgba(255,255,255,.06); color:#94a3b8; cursor:pointer; transition:all .2s;
+}
+.eq-lbtn.on { background:linear-gradient(135deg,#eab308,#f97316); border-color:transparent; color:white; }
+
+.eq-main {
+  display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap; justify-content:center;
+}
+.eq-target-wrap { text-align:center; }
+.eq-target-lbl { font-size:.7rem; font-weight:900; color:#64748b; letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; }
+.eq-target-name { font-family:'Fredoka',cursive; font-weight:700; font-size:.9rem; margin-top:5px; }
+.eq-target-frac { font-family:'Fredoka',cursive; font-size:1.4rem; font-weight:700; }
+
+.eq-slots { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin:12px 0; }
+.eq-slot {
+  border:2.5px dashed rgba(255,255,255,.2); border-radius:50%;
+  width:72px; height:72px;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .25s var(--T); cursor:pointer; position:relative;
+  flex-shrink:0;
+}
+.eq-slot.over { border-color:#f97316; transform:scale(1.1); background:rgba(249,115,22,.1); }
+.eq-slot.filled { border-style:solid; animation:correctPop .5s var(--T); }
+.eq-slot.wrong { border-color:#ef4444; animation:wrongShake .4s ease; }
+
+/* Sector draggables */
+.sectors-bank {
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07);
+  border-radius:14px; padding:12px; margin-bottom:10px;
+}
+.sectors-label { font-size:.65rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:#64748b;margin-bottom:10px; }
+.sectors-row { display:flex;gap:8px;flex-wrap:wrap;justify-content:center; }
+.sector-item {
+  cursor:grab; transition:all .2s var(--T);
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.sector-item:hover canvas { transform:scale(1.12); }
+.sector-item:active { cursor:grabbing; opacity:.75; transform:scale(.9); }
+.sector-item.used { opacity:.2; pointer-events:none; }
+.sector-item canvas { border-radius:50%; display:block; }
+.si-lbl { font-family:'Fredoka',cursive;font-size:.72rem;font-weight:700; }
+
+/* Eq feedback */
+.eq-result {
+  text-align:center;font-family:'Fredoka',cursive;font-size:1rem;font-weight:700;
+  min-height:28px;color:#22c55e;margin:8px 0;
+}
+.eq-next-btn {
+  display:none;font-family:'Fredoka',cursive;font-weight:700;font-size:.88rem;
+  padding:10px 24px;border-radius:50px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,#a855f7,#ec4899);color:white;
+  margin:0 auto;transition:all .25s;box-shadow:0 4px 14px rgba(168,85,247,.3);
+}
+.eq-next-btn.show { display:block;animation:popIn .3s var(--T); }
+.eq-next-btn:active { transform:scale(.92); }
+</style>
+</head>
+<body>
+
+<div id="conf"></div>
+
+<!-- ═══════ SPLASH ═══════ -->
+<div id="splash">
+  <div class="sp-stars">🎵🎶🎵</div>
+  <div class="sp-title">Figuras<br>y Silencios</div>
+  <div class="sp-notes-row" id="spNotes"></div>
+  <div class="sp-sub">Módulo IV · Las Fracciones al Ritmo de la Música<br>Sonido · Reloj · Vibración · ¡Todo sincronizado!</div>
+  <div class="sp-author">Luis Alexander Conde Solano · UCM · Uso libre y gratuito</div>
+  <button class="sp-btn" id="splashBtn" onclick="closeSplash()">¡ Comenzar ! 🎶</button>
+  <button style="background:none;border:none;color:#64748b;font-size:.75rem;cursor:pointer;margin-top:-4px;text-decoration:underline" onclick="showAbout()">ℹ️ Acerca de este software</button>
+</div>
+
+<!-- ABOUT MODAL -->
+<div id="aboutModal" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.85);overflow-y:auto;padding:20px;">
+  <div style="max-width:600px;margin:0 auto;background:#1e293b;border-radius:20px;padding:24px;border:1px solid rgba(255,255,255,.1)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+      <div style="font-family:'Fredoka',cursive;font-size:1.2rem;color:#fbbf24">📖 Acerca de este software</div>
+      <button onclick="closeAbout()" style="background:rgba(255,255,255,.1);border:none;color:#94a3b8;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem">✕</button>
+    </div>
+    <div style="font-size:.82rem;line-height:1.75;color:#cbd5e1">
+      <p style="color:#fbbf24;font-weight:900;margin-bottom:8px">Las Fracciones al Ritmo de la Música</p>
+      <p style="margin-bottom:10px">Software educativo derivado de la tesis de Maestría en Ciencias, Especialidad Matemática Educativa, presentada en el <b style="color:#e2e8f0">CINVESTAV-IPN, Unidad Distrito Federal</b>, Departamento de Matemática Educativa, México, 2009.</p>
+      <p style="margin-bottom:10px"><b style="color:#e2e8f0">Autor:</b> Luis Alexander Conde Solano<br>
+      <b style="color:#e2e8f0">Directores:</b> Dra. Olimpia Figueras Mourut de Montpellier · Dr. François Charles Bertrand Pluvinage</p>
+      <p style="color:#94a3b8;font-size:.75rem;margin-bottom:14px">Con apoyo del Instituto de Ciencia y Tecnología de Ciudad de México · Becario BI080528180101</p>
+      <div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:10px;padding:12px;margin-bottom:14px">
+        <p style="color:#fbbf24;font-weight:900;font-size:.78rem;margin-bottom:8px">🗂️ Propuesta Interdisciplinaria — 7 Módulos</p>
+        <div id="modulesAccordion"></div>
+      </div>
+      <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:12px;margin-bottom:14px">
+        <p style="color:#22c55e;font-weight:900;font-size:.78rem;margin-bottom:6px">📱 Este producto — Módulo IV</p>
+        <p style="font-size:.78rem"><b style="color:#e2e8f0">¿Cómo se mide la duración de los sonidos y los silencios en música?</b><br>
+        Propósitos: identificar la unidad de duración · reconocer el valor relativo · asociar figuras musicales y silencios a fracciones de duración.<br>
+        <span style="color:#94a3b8">Contenidos: Matemáticas (fracciones, relación de orden) · Música (figuras y silencios) · Física (el tiempo, el sonido)</span></p>
+      </div>
+      <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:12px;margin-bottom:14px">
+        <p style="color:#3b82f6;font-weight:900;font-size:.78rem;margin-bottom:6px">💻 Sobre la vibración en celular</p>
+        <p style="font-size:.78rem">
+          <b style="color:#e2e8f0">Android:</b> vibración táctil real sincronizada con la duración de cada figura musical. El patrón de pulsos es proporcional: la redonda vibra más tiempo, la semifusa casi instantáneo.<br><br>
+          <b style="color:#e2e8f0">iPhone/iPad:</b> Apple no permite vibración desde el navegador web. Como alternativa, esta App usa un <b>oscilador de baja frecuencia (38Hz)</b> a través del altavoz que produce una sensación de pulso perceptible. Para vibración real: instala la App en pantalla de inicio (Safari → compartir → "Agregar a pantalla de inicio") y activa el modo vibración en Configuración → Sonidos y hápticos.<br><br>
+          <b style="color:#e2e8f0">Descarga y uso:</b> Este archivo HTML es gratuito y de uso libre. Al subirlo a una página web no genera ningún costo adicional — es código estático que los navegadores descargan automáticamente.
+        </p>
+      </div>
+      <p style="font-size:.72rem;color:#475569;text-align:center">© 2009-2026 Luis Alexander Conde Solano · Material educativo de libre acceso · Universidad Complutense de Madrid</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ APP SHELL ═══════ -->
+<div id="app">
+  <div class="topbar">
+    <div class="tb-title">🎵 Figuras y Silencios</div>
+    <div class="tb-right">
+      <div class="tb-score">⭐ <span id="globalPts">0</span></div>
+      <button class="lang-btn" id="langBtn" onclick="toggleLang()">EN</button>
+    </div>
+  </div>
+  <div class="scene-nav" id="sceneNav"></div>
+  <div class="stars-row" id="starsRow"></div>
+  <div class="scene-wrap">
+
+    <!-- ESCENA 1 — EL RELOJ -->
+    <div class="scene on" id="sc1">
+      <div class="scene-header">
+        <div class="scene-num" id="sc1num">Escena 1 de 5</div>
+        <div class="scene-title" id="sc1title">🕐 El Reloj y las Fracciones</div>
+        <div class="scene-desc" id="sc1desc">Una vuelta completa = 1 compás. Cada figura ocupa un sector del reloj. Toca para escuchar y ver la aguja recorriendo su fracción.</div>
+      </div>
+      <!-- Compás cursor en tiempo real -->
+      <div class="compas-cursor-wrap card" style="margin-bottom:12px">
+        <div class="cc-title" id="ccTitle">▶ Cursor de compás en tiempo real</div>
+        <div class="cursor-track">
+          <div class="cursor-fill" id="cursorFill"></div>
+          <div class="cursor-line" id="cursorLine"></div>
+        </div>
+      </div>
+      <div class="clocks-grid" id="clocksGrid"></div>
+    </div>
+
+    <!-- ESCENA 2 — BARRAS DINÁMICAS -->
+    <div class="scene" id="sc2">
+      <div class="scene-header">
+        <div class="scene-num" id="sc2num">Escena 2 de 5</div>
+        <div class="scene-title" id="sc2title">📊 Barras de Duración y Silencios</div>
+        <div class="scene-desc" id="sc2desc">La barra roja = sonido. La barra gris = silencio. Toca cada figura: la barra se recubre mientras vibras y escuchas.</div>
+      </div>
+      <div class="bar-grid" id="barGrid"></div>
+    </div>
+
+    <!-- ESCENA 3 — TOCA Y ESCUCHA -->
+    <div class="scene" id="sc3">
+      <div class="scene-header">
+        <div class="scene-num" id="sc3num">Escena 3 de 5</div>
+        <div class="scene-title" id="sc3title">👆 Toca y Escucha</div>
+        <div class="scene-desc" id="sc3desc">Exploración libre. Toca cualquier figura o silencio y observa cómo cambian el reloj, la barra y la onda simultáneamente.</div>
+      </div>
+      <!-- Live Display Panel -->
+      <div class="live-display" id="liveDisplay">
+        <div class="ld-clock">
+          <canvas id="ldClock" width="90" height="90"></canvas>
+        </div>
+        <div class="ld-info" style="flex:1">
+          <div class="ld-name" id="ldName" style="color:#64748b">— Toca una figura —</div>
+          <!-- BARRA PROPORCIONAL: misma estructura que Escena 2 -->
+          <div class="ld-bar-lbl" id="ldBarLbl" style="font-size:.6rem;color:#64748b;font-weight:700;margin:4px 0 2px">
+            1 compás completo:
+          </div>
+          <!-- Regla de referencia -->
+          <div class="bar-reference" style="margin-bottom:4px">
+            <div class="bar-ref-tick" style="left:25%"></div>
+            <div class="bar-ref-tick" style="left:50%"></div>
+            <div class="bar-ref-tick" style="left:75%"></div>
+          </div>
+          <!-- Contenedor sonido proporcional -->
+          <div style="font-size:.55rem;color:#64748b;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px" id="ldSoundLbl">▶ sonido</div>
+          <div class="bar-sound-wrap" style="height:14px;margin-bottom:4px">
+            <div class="bar-sound-prop" id="ldSoundProp" style="width:100%">
+              <div class="dyn-bar-segs" id="ldBarSegs"></div>
+              <div class="dyn-bar-fill" id="ldBarFill"></div>
+            </div>
+          </div>
+          <canvas class="ld-wave" id="ldWave" height="36"></canvas>
+        </div>
+      </div>
+      <span class="section-label" id="sc3figLabel">Figuras musicales</span>
+      <div class="touch-grid" id="touchFigs"></div>
+      <span class="section-label" id="sc3silLabel" style="margin-top:14px">Silencios</span>
+      <div class="touch-grid" id="touchSils"></div>
+    </div>
+
+    <!-- ESCENA 4 — ARRASTRA LA FIGURA -->
+    <div class="scene" id="sc4">
+      <div class="scene-header">
+        <div class="scene-num" id="sc4num">Escena 4 de 5</div>
+        <div class="scene-title" id="sc4title">🎯 Escucha y Arrastra</div>
+        <div class="scene-desc" id="sc4desc">Escucha el sonido y arrastra la figura musical a su fracción correspondiente.</div>
+      </div>
+      <div class="dnd-consigna" id="dndConsigna">🎧 Escucha el sonido y arrastra la figura a su fracción</div>
+      <div class="dnd-play-btn">
+        <button class="play-sound-btn" id="dndPlayBtn" onclick="playDndSound()">
+          <span>▶</span> <span id="dndPlayLbl">Reproducir sonido</span>
+        </button>
+      </div>
+      <div class="dnd-zones" id="dndZones"></div>
+      <div class="dnd-feedback" id="dndFeedback"></div>
+      <div class="dnd-score" id="dndScore">0 / 0</div>
+      <button class="dnd-next-btn" id="dndNextBtn" onclick="nextDndRound()">
+        Siguiente ➜
+      </button>
+      <div class="dnd-items-wrap">
+        <div class="dnd-items-label" id="dndItemsLbl">Figuras</div>
+        <div class="dnd-items" id="dndItems"></div>
+      </div>
+    </div>
+
+    <!-- ESCENA 5 — SECTORES CIRCULARES -->
+    <div class="scene" id="sc5">
+      <div class="scene-header">
+        <div class="scene-num" id="sc5num">Escena 5 de 5</div>
+        <div class="scene-title" id="sc5title">🔵 Construye el Compás</div>
+        <div class="scene-desc" id="sc5desc">Arrastra los sectores correctos para completar el círculo. ¡El círculo = 1 compás entero!</div>
+      </div>
+      <div class="eq-consigna" id="eqConsigna">Arrastra los sectores que completan exactamente el círculo (= 1 compás)</div>
+      <div class="eq-level" id="eqLevel"></div>
+      <div class="eq-main">
+        <div class="eq-target-wrap">
+          <div class="eq-target-lbl" id="eqTargetLbl">Figura objetivo</div>
+          <canvas id="eqTargetCanvas" width="110" height="110"></canvas>
+          <div class="eq-target-frac" id="eqTargetFrac" style="color:#f97316">—</div>
+          <div class="eq-target-name" id="eqTargetName" style="color:#94a3b8">—</div>
+        </div>
+        <div style="flex:1;min-width:160px">
+          <div style="font-size:.68rem;font-weight:900;color:#64748b;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px" id="eqSlotsLbl">Arrastra aquí los sectores</div>
+          <div class="eq-slots" id="eqSlots"></div>
+          <canvas id="eqBuildCanvas" width="120" height="120" style="display:block;margin:8px auto;border-radius:50%"></canvas>
+          <div class="eq-result" id="eqResult"></div>
+          <button class="eq-next-btn" id="eqNextBtn" onclick="nextEqRound()">Siguiente ➜</button>
+        </div>
+      </div>
+      <div class="sectors-bank">
+        <div class="sectors-label" id="eqBankLbl">Sectores disponibles</div>
+        <div class="sectors-row" id="eqBank"></div>
+      </div>
+    </div>
+
+    <!-- ESCENA 6 — ¡PONTE A PRUEBA! -->
+    <div class="scene" id="sc6">
+      <div class="scene-header">
+        <div class="scene-num" id="sc6num">Escena 6 de 6 · ¡Ponte a Prueba!</div>
+        <div class="scene-title" id="sc6title">🏆 ¡Ponte a Prueba!</div>
+        <div class="scene-desc" id="sc6desc">Demuestra lo que aprendiste. Escucha, observa y responde. Cada acierto suma puntos y estrellas.</div>
+      </div>
+      <!-- SCORE PANEL -->
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center;margin-bottom:14px">
+        <div style="background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.25);border-radius:12px;padding:8px 18px;font-family:'Fredoka',cursive;font-size:.95rem;font-weight:700;color:#fbbf24">
+          ⭐ <span id="gameScore">0</span> pts
+        </div>
+        <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:8px 18px;font-size:.82rem;color:#94a3b8;font-weight:700">
+          <span id="gameQ">0</span> / <span id="gameTotal">10</span>
+        </div>
+        <div class="qz-pb" style="flex:1;min-width:100px;height:10px;background:rgba(255,255,255,.07);border-radius:5px;overflow:hidden;border:1px solid rgba(255,255,255,.08)">
+          <div id="gamePF" style="height:100%;background:linear-gradient(90deg,#fbbf24,#f97316);border-radius:5px;width:0%;transition:width .5s"></div>
+        </div>
+      </div>
+      <!-- GAME AREA -->
+      <div id="gameArea"></div>
+      <!-- FINAL RESULT -->
+      <div id="gameFinal" style="display:none;text-align:center;padding:24px 16px;animation:popIn .5s var(--T)">
+        <div id="gfEmoji" style="font-size:3.5rem;margin-bottom:10px"></div>
+        <div id="gfTitle" style="font-family:'Fredoka',cursive;font-size:1.5rem;font-weight:700;margin-bottom:6px"></div>
+        <div id="gfScore" style="font-family:'Fredoka',cursive;font-size:2.5rem;font-weight:700;color:#fbbf24"></div>
+        <div id="gfMsg" style="font-size:.85rem;color:#94a3b8;margin:8px 0 20px;line-height:1.6"></div>
+        <button onclick="restartGame()" style="font-family:'Fredoka',cursive;font-weight:700;font-size:.95rem;padding:12px 28px;border-radius:50px;border:none;cursor:pointer;background:linear-gradient(135deg,#fbbf24,#f97316);color:white;box-shadow:0 4px 14px rgba(251,191,36,.35)">
+          🔄 Jugar de nuevo
+        </button>
+      </div>
+    </div>
+
+  </div><!-- scene-wrap -->
+</div><!-- app -->
+
+<!-- NAV ARROWS -->
+<div class="nav-arrows">
+  <button class="nav-arr prev" id="btnPrev" onclick="goScene(-1)" disabled>◀</button>
+  <button class="nav-arr next" id="btnNext" onclick="goScene(1)">▶</button>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   DATA
+══════════════════════════════════════════════════ */
+const FIGURAS = [
+  { id:'redonda',     frac:'1/1',  val:1,        freq:261.63, dur:1800, col:'#ef4444',
+    es:{n:'Redonda',     b:'4 tiempos', d:'Dura TODO el compás — 1 vuelta completa del reloj'},
+    en:{n:'Whole Note',  b:'4 beats',   d:'Lasts the ENTIRE measure — 1 full clock revolution'},
+    svg:`<ellipse cx="26" cy="33" rx="21" ry="13" stroke="currentColor" stroke-width="3.5" fill="none"/>
+         <ellipse cx="26" cy="33" rx="12" ry="7" fill="currentColor" opacity="0.18"/>` },
+
+  { id:'blanca',      frac:'1/2',  val:.5,       freq:293.66, dur:1100, col:'#f97316',
+    es:{n:'Blanca',      b:'2 tiempos', d:'Media vuelta del reloj — mitad del compás'},
+    en:{n:'Half Note',   b:'2 beats',   d:'Half clock turn — half the measure'},
+    svg:`<ellipse cx="22" cy="38" rx="18" ry="11" stroke="currentColor" stroke-width="3" fill="none"/>
+         <line x1="39" y1="38" x2="39" y2="6" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>` },
+
+  { id:'negra',       frac:'1/4',  val:.25,      freq:329.63, dur:600,  col:'#eab308',
+    es:{n:'Negra',        b:'1 tiempo',  d:'Un cuadrante del reloj — de las 12 a las 3'},
+    en:{n:'Quarter Note', b:'1 beat',    d:'One clock quadrant — 12 to 3'},
+    svg:`<ellipse cx="22" cy="40" rx="18" ry="11" fill="currentColor" transform="rotate(-18,22,40)"/>
+         <line x1="38" y1="36" x2="38" y2="4" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>` },
+
+  { id:'corchea',     frac:'1/8',  val:.125,     freq:392.00, dur:330,  col:'#22c55e',
+    es:{n:'Corchea',     b:'½ tiempo',  d:'45 grados del reloj — 1 corchete'},
+    en:{n:'Eighth Note', b:'½ beat',    d:'45 clock degrees — 1 flag'},
+    svg:`<ellipse cx="18" cy="44" rx="16" ry="10" fill="currentColor" transform="rotate(-18,18,44)"/>
+         <line x1="32" y1="40" x2="32" y2="6" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
+         <path d="M32,6 Q50,15 35,28" stroke="currentColor" stroke-width="2.3" fill="none" stroke-linecap="round"/>` },
+
+  { id:'semicorchea', frac:'1/16', val:.0625,    freq:440.00, dur:180,  col:'#06b6d4',
+    es:{n:'Semicorchea',    b:'¼ tiempo',  d:'22.5 grados — 2 corchetes'},
+    en:{n:'Sixteenth Note', b:'¼ beat',    d:'22.5 degrees — 2 flags'},
+    svg:`<ellipse cx="16" cy="47" rx="15" ry="9" fill="currentColor" transform="rotate(-18,16,47)"/>
+         <line x1="29" y1="43" x2="29" y2="4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+         <path d="M29,4 Q46,12 31,23" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+         <path d="M29,13 Q46,21 31,32" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>` },
+
+  { id:'fusa',        frac:'1/32', val:.03125,   freq:523.25, dur:100,  col:'#3b82f6',
+    es:{n:'Fusa',      b:'⅛ tiempo',  d:'11.25 grados — 3 corchetes'},
+    en:{n:'32nd Note', b:'⅛ beat',    d:'11.25 degrees — 3 flags'},
+    svg:`<ellipse cx="15" cy="49" rx="14" ry="9" fill="currentColor" transform="rotate(-18,15,49)"/>
+         <line x1="27" y1="45" x2="27" y2="3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+         <path d="M27,3 Q42,10 29,20" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round"/>
+         <path d="M27,11 Q42,18 29,28" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round"/>
+         <path d="M27,19 Q42,26 29,36" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round"/>` },
+
+  { id:'semifusa',    frac:'1/64', val:.015625,  freq:659.25, dur:60,   col:'#a855f7',
+    es:{n:'Semifusa',  b:'1/16 tiempo', d:'5.6 grados — 4 corchetes. ¡La más corta!'},
+    en:{n:'64th Note', b:'1/16 beat',   d:'5.6 degrees — 4 flags. The shortest!'},
+    svg:`<ellipse cx="14" cy="51" rx="13" ry="8" fill="currentColor" transform="rotate(-18,14,51)"/>
+         <line x1="25" y1="47" x2="25" y2="2" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+         <path d="M25,2 Q39,8 26,17" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+         <path d="M25,9 Q39,15 26,24" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+         <path d="M25,16 Q39,22 26,31" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+         <path d="M25,23 Q39,29 26,38" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/>` }
+];
+
+// SILENCIOS — misma duración, sin sonido
+const SILENCIOS = FIGURAS.map(f => ({
+  ...f,
+  id: 'sil_'+f.id,
+  isSilence: true,
+  freq: 0,
+  es: { n: 'Silencio de '+f.es.n, b: f.es.b, d: 'Ausencia de sonido con la misma duración' },
+  en: { n: 'Rest of '+f.en.n,     b: f.en.b, d: 'Silence with the same duration' },
+}));
+
+/* ══════════════════════════════════════════════════
+   I18N
+══════════════════════════════════════════════════ */
+let LNG = 'es';
+const TX = {
+  sc1num:{es:'Escena 1 de 5',en:'Scene 1 of 5'},
+  sc1title:{es:'🕐 El Reloj y las Fracciones',en:'🕐 The Clock and Fractions'},
+  sc1desc:{es:'Una vuelta = 1 compás. Cada figura ocupa un sector. Toca para escuchar y ver la aguja recorriendo su fracción.',en:'One turn = 1 measure. Each note occupies a sector. Tap to hear and watch the hand sweep its fraction.'},
+  sc2num:{es:'Escena 2 de 5',en:'Scene 2 of 5'},
+  sc2title:{es:'📊 Barras de Duración y Silencios',en:'📊 Duration Bars and Rests'},
+  sc2desc:{es:'Barra roja = sonido. Barra gris = silencio. Toca: la barra se recubre mientras suena y vibras.',en:'Red bar = sound. Grey bar = rest. Tap: the bar fills while you hear and feel the vibration.'},
+  sc3num:{es:'Escena 3 de 5',en:'Scene 3 of 5'},
+  sc3title:{es:'👆 Toca y Escucha',en:'👆 Touch and Listen'},
+  sc3desc:{es:'Exploración libre. Toca cualquier figura o silencio y observa cómo cambian el reloj, barra y onda a la vez.',en:'Free exploration. Tap any note or rest and watch clock, bar and wave change simultaneously.'},
+  sc3figLabel:{es:'Figuras musicales',en:'Music Notes'},
+  sc3silLabel:{es:'Silencios',en:'Music Rests'},
+  sc4num:{es:'Escena 4 de 5',en:'Scene 4 of 5'},
+  sc4title:{es:'🎯 Escucha y Arrastra',en:'🎯 Listen and Drag'},
+  sc4desc:{es:'Escucha el sonido y arrastra la figura musical a su fracción correspondiente.',en:'Listen to the sound and drag the music note to its matching fraction.'},
+  dndConsigna:{es:'🎧 Escucha el sonido y arrastra la figura a su fracción',en:'🎧 Listen and drag the note to its fraction'},
+  dndPlayLbl:{es:'Reproducir sonido',en:'Play sound'},
+  dndItemsLbl:{es:'Figuras disponibles',en:'Available notes'},
+  sc5num:{es:'Escena 5 de 5',en:'Scene 5 of 5'},
+  sc5title:{es:'🔵 Construye el Compás',en:'🔵 Build the Measure'},
+  sc5desc:{es:'Arrastra los sectores para completar el círculo. ¡El círculo = 1 compás entero!',en:'Drag sectors to complete the circle. The circle = 1 whole measure!'},
+  eqConsigna:{es:'Arrastra los sectores que completan exactamente el círculo (= 1 compás)',en:'Drag the sectors that complete exactly the circle (= 1 measure)'},
+  eqTargetLbl:{es:'Figura objetivo',en:'Target note'},
+  eqSlotsLbl:{es:'Arrastra aquí los sectores',en:'Drag sectors here'},
+  eqBankLbl:{es:'Sectores disponibles',en:'Available sectors'},
+  ccTitle:{es:'▶ Cursor de compás en tiempo real',en:'▶ Real-time measure cursor'},
+};
+function t(k){ return TX[k]?.[LNG] || TX[k]?.es || k; }
+function applyLang(){
+  Object.keys(TX).forEach(k=>{ const el=document.getElementById(k); if(el) el.textContent=t(k); });
+  document.getElementById('langBtn').textContent = LNG==='es'?'EN':'ES';
+  renderScene1(); renderScene2(); renderScene3(); renderScene4(); renderScene5();
+}
+function toggleLang(){ LNG=LNG==='es'?'en':'es'; applyLang(); vib(20); }
+
+/* ══════════════════════════════════════════════════
+   AUDIO ENGINE — iOS compatible
+══════════════════════════════════════════════════ */
+let AC=null;
+const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+
+function initAudio(){
+  if(AC) return;
+  try{
+    AC=new(window.AudioContext||window.webkitAudioContext)();
+    const b=AC.createBuffer(1,1,22050), s=AC.createBufferSource();
+    s.buffer=b; s.connect(AC.destination); s.start(0);
+  }catch(e){}
+}
+function ac(){ if(!AC)initAudio(); if(AC&&AC.state==='suspended')AC.resume(); return AC; }
+
+function playTone(freq, durSec, wave, vol){
+  const ctx=ac(); if(!ctx||freq===0) return;
+  try{
+    const osc=ctx.createOscillator(),g=ctx.createGain(),fl=ctx.createBiquadFilter(),now=ctx.currentTime;
+    fl.type='lowpass'; fl.frequency.value=2200;
+    osc.connect(fl); fl.connect(g); g.connect(ctx.destination);
+    osc.type=wave||'triangle'; osc.frequency.setValueAtTime(freq,now);
+    g.gain.setValueAtTime(0,now);
+    g.gain.linearRampToValueAtTime(vol||0.4,now+0.015);
+    g.gain.exponentialRampToValueAtTime(0.001,now+durSec);
+    osc.start(now); osc.stop(now+durSec+0.05);
+  }catch(e){}
+}
+function playSuccess(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,.45,'triangle',.2),i*18)); }
+function playFail(){ playTone(200,.35,'sawtooth',.2); }
+
+/* ══════════════════════════════════════════════════
+   VIBRACIÓN SINCRONIZADA
+══════════════════════════════════════════════════ */
+let _vOsc=null, _vGain=null;
+function _setupVib(){
+  const ctx=ac(); if(!ctx||_vOsc) return;
+  try{
+    _vGain=ctx.createGain(); _vGain.gain.value=0;
+    _vOsc=ctx.createOscillator(); _vOsc.frequency.value=38; _vOsc.type='sine';
+    _vOsc.connect(_vGain); _vGain.connect(ctx.destination); _vOsc.start();
+  }catch(e){}
+}
+function vib(pat){
+  if(navigator.vibrate){ navigator.vibrate(typeof pat==='number'?pat:pat); return; }
+  if(isIOS){
+    _setupVib(); if(!_vGain) return;
+    const ctx=ac(), pulses=Array.isArray(pat)?pat:[pat]; let t=ctx.currentTime;
+    for(let i=0;i<pulses.length;i++){
+      if(i%2===0){
+        _vGain.gain.setValueAtTime(0.001,t);
+        _vGain.gain.linearRampToValueAtTime(0.09,t+.008);
+        _vGain.gain.linearRampToValueAtTime(0.001,t+Math.max(pulses[i]/1000-.01,.001));
+      }
+      t+=pulses[i]/1000;
+    }
+  }
+}
+function vibFig(f){
+  const n=Math.max(1,Math.min(Math.round(1/f.val),8));
+  const on=Math.min(Math.round(f.dur/n*.55),120);
+  const off=Math.min(Math.round(f.dur/n*.45),90);
+  const p=[]; for(let i=0;i<n;i++){p.push(on);if(i<n-1)p.push(off);}
+  vib(p);
+}
+
+/* ══════════════════════════════════════════════════
+   RELOJ ANALÓGICO
+══════════════════════════════════════════════════ */
+function drawClock(cv, frac, col, lbl, bg){
+  const ctx=cv.getContext('2d'),W=cv.width,H=cv.height,cx=W/2,cy=H/2,r=W/2-4;
+  ctx.clearRect(0,0,W,H);
+  // background
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.fillStyle=bg||'rgba(30,41,59,1)'; ctx.fill();
+  ctx.strokeStyle=col+'44'; ctx.lineWidth=2; ctx.stroke();
+  // marks
+  for(let i=0;i<12;i++){
+    const a=-Math.PI/2+i*Math.PI/6, big=i%3===0;
+    ctx.beginPath();
+    ctx.moveTo(cx+Math.cos(a)*(r-3),cy+Math.sin(a)*(r-3));
+    ctx.lineTo(cx+Math.cos(a)*(r-(big?10:5)),cy+Math.sin(a)*(r-(big?10:5)));
+    ctx.strokeStyle=big?'#475569':'#334155'; ctx.lineWidth=big?2:1; ctx.stroke();
+  }
+  // sector
+  if(frac>0){
+    const ea=-Math.PI/2+frac*Math.PI*2;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r-3,-Math.PI/2,ea); ctx.closePath();
+    ctx.fillStyle=col+'55'; ctx.fill();
+    ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
+    // hand
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+Math.cos(ea)*(r*.65),cy+Math.sin(ea)*(r*.65));
+    ctx.strokeStyle=col; ctx.lineWidth=3; ctx.lineCap='round'; ctx.stroke();
+  }
+  // fixed 12 hand
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx,cy-r*.78);
+  ctx.strokeStyle='#64748b'; ctx.lineWidth=1.8; ctx.lineCap='round'; ctx.stroke();
+  // center
+  ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2); ctx.fillStyle=col||'#64748b'; ctx.fill();
+  // label
+  if(lbl){
+    ctx.fillStyle='rgba(255,255,255,.55)'; ctx.font=`bold ${Math.round(W*.12)}px Nunito,sans-serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(lbl,cx,cy+r*.38);
+  }
+}
+
+let _clockRafs={};
+function animClock(cv, fracEnd, col, durMs, id){
+  const t0=performance.now();
+  if(_clockRafs[id]) cancelAnimationFrame(_clockRafs[id]);
+  function fr(ts){
+    const p=Math.min((ts-t0)/durMs,1);
+    drawClock(cv,fracEnd*p,col,null);
+    if(p<1) _clockRafs[id]=requestAnimationFrame(fr);
+    else drawClock(cv,fracEnd,col,null);
+  }
+  _clockRafs[id]=requestAnimationFrame(fr);
+}
+
+/* ══════════════════════════════════════════════════
+   ONDA VISUAL
+══════════════════════════════════════════════════ */
+let _wRaf=null;
+function drawWave(cv,col,val,durMs,isSilence){
+  if(!cv) return;
+  const ctx=cv.getContext('2d');
+  const W=cv.offsetWidth*2||600,H=cv.height*2||80;
+  cv.width=W; cv.height=H;
+  if(isSilence){
+    ctx.clearRect(0,0,W,H);
+    ctx.beginPath(); ctx.setLineDash([10,8]);
+    ctx.moveTo(0,H/2); ctx.lineTo(W,H/2);
+    ctx.strokeStyle=col+'66'; ctx.lineWidth=2; ctx.stroke();
+    ctx.setLineDash([]);
+    return;
+  }
+  const t0=performance.now(),cycles=Math.max(1,Math.round(1/val)*1.4);
+  if(_wRaf) cancelAnimationFrame(_wRaf);
+  function fr(ts){
+    const p=Math.min((ts-t0)/durMs,1);
+    ctx.clearRect(0,0,W,H);
+    ctx.beginPath();
+    for(let x=0;x<W;x++){
+      const tx=x/W,amp=(tx<=p)?Math.sin(Math.PI*tx)*(1-p*.3)*H*.36:0;
+      const y=H/2+amp*Math.sin(2*Math.PI*cycles*tx);
+      x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.lineTo(W,H/2); ctx.lineTo(0,H/2); ctx.closePath();
+    ctx.fillStyle=col+'22'; ctx.fill();
+    ctx.beginPath();
+    for(let x=0;x<W;x++){
+      const tx=x/W,amp=(tx<=p)?Math.sin(Math.PI*tx)*(1-p*.3)*H*.36:0;
+      const y=H/2+amp*Math.sin(2*Math.PI*cycles*tx);
+      x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.lineCap='round'; ctx.stroke();
+    if(p<1) _wRaf=requestAnimationFrame(fr);
+  }
+  _wRaf=requestAnimationFrame(fr);
+}
+
+/* ══════════════════════════════════════════════════
+   COMPÁS CURSOR EN TIEMPO REAL
+══════════════════════════════════════════════════ */
+let _cursorRaf=null;
+function animCursor(fig){
+  const fill=document.getElementById('cursorFill');
+  const line=document.getElementById('cursorLine');
+  if(!fill||!line) return;
+  const col=fig.col, durMs=fig.dur;
+  fill.style.cssText=`background:linear-gradient(90deg,${col}88,${col}33);width:0%`;
+  line.style.cssText=`background:${col};left:0%;box-shadow:0 0 8px ${col}`;
+  if(_cursorRaf) cancelAnimationFrame(_cursorRaf);
+  const t0=performance.now();
+  function fr(ts){
+    const p=Math.min((ts-t0)/durMs,1);
+    fill.style.width=(p*100)+'%';
+    line.style.left=(p*100)+'%';
+    if(p<1) _cursorRaf=requestAnimationFrame(fr);
+    else{ fill.style.width='0%'; line.style.left='0%'; }
+  }
+  _cursorRaf=requestAnimationFrame(fr);
+}
+
+/* ══════════════════════════════════════════════════
+   SINCRONIZADOR MAESTRO
+══════════════════════════════════════════════════ */
+function syncPlay(fig, clockCv, clockId, segsEl, fillEl, waveCv){
+  ac();
+  if(!fig.isSilence) playTone(fig.freq, fig.dur/1000,'triangle',0.42);
+  vibFig(fig);
+  animCursor(fig);
+  if(clockCv) animClock(clockCv, fig.isSilence?0:fig.val, fig.col, fig.dur, clockId||fig.id);
+  if(segsEl && fillEl){
+    const total=Math.min(Math.round(1/fig.val),32);
+    segsEl.innerHTML=Array(total).fill(0).map((_,i)=>
+      `<div class="dyn-bar-seg" id="bs_${clockId||fig.id}_${i}" style="background:${fig.col}"></div>`).join('');
+    fillEl.style.cssText=`background:linear-gradient(90deg,${fig.col},${fig.col}cc);width:0%`;
+    animPropBar(fillEl, segsEl, clockId||fig.id, fig.dur, fig.col, false);
+  }
+  if(waveCv) drawWave(waveCv, fig.col, fig.val, fig.dur, !!fig.isSilence);
+  _played.add(fig.id); updateStars();
+}
+
+/* ══════════════════════════════════════════════════
+   PROGRESS STARS
+══════════════════════════════════════════════════ */
+const _played=new Set();
+let _sc4ok=0,_sc4total=0,_sc5ok=0,_sc5total=0;
+let _gPts=0;
+
+const SCENE_STARS=[
+  {id:'s1',lbl:'🕐',max:3},
+  {id:'s2',lbl:'📊',max:3},
+  {id:'s3',lbl:'👆',max:3},
+  {id:'s4',lbl:'🎯',max:3},
+  {id:'s5',lbl:'🔵',max:3},
+  {id:'s6',lbl:'🏆',max:3},
+];
+
+function buildStarsRow(){
+  document.getElementById('starsRow').innerHTML=SCENE_STARS.map(s=>`
+    <div class="star-item">
+      <div class="star-lbl">${s.lbl}</div>
+      <div class="star-wrap">
+        ${[1,2,3].map(i=>`<span class="star" id="str_${s.id}_${i}">⭐</span>`).join('')}
+      </div>
+    </div>`).join('');
+}
+function setStar(id,n){
+  const el=document.getElementById(`str_${id}_${n}`);
+  if(el&&!el.classList.contains('on')){ el.classList.add('on'); addPts(10); confetti(); }
+}
+function updateStars(){
+  // Scene 1: played 1/4/7 clocks
+  const p=_played.size;
+  if(p>=1) setStar('s1',1); if(p>=4) setStar('s1',2); if(p>=7) setStar('s1',3);
+  // Scene 2: played 3/5/7 bars
+  const bars=[..._played].filter(id=>!id.startsWith('sil_'));
+  if(bars.length>=2) setStar('s2',1); if(bars.length>=4) setStar('s2',2); if(bars.length>=7) setStar('s2',3);
+  // Scene 3: played silence
+  const sils=[..._played].filter(id=>id.startsWith('sil_'));
+  if(sils.length>=1) setStar('s3',1); if(sils.length>=3) setStar('s3',2); if(sils.length>=5) setStar('s3',3);
+}
+function addPts(n){
+  _gPts+=n;
+  const el=document.getElementById('globalPts'); if(!el) return;
+  el.textContent=_gPts;
+  el.animate([{transform:'scale(1)'},{transform:'scale(1.6)',color:'#fbbf24'},{transform:'scale(1)'}],{duration:400,easing:'ease'});
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 1 — RELOJES + BARRA PROPORCIONAL
+══════════════════════════════════════════════════ */
+function renderScene1(){
+  const ticks='<div class="cc-bar-ref-tick" style="left:25%"></div><div class="cc-bar-ref-tick" style="left:50%"></div><div class="cc-bar-ref-tick" style="left:75%"></div>';
+  const pct = f => (f.val*100).toFixed(2)+'%';
+
+  document.getElementById('clocksGrid').innerHTML = FIGURAS.map(f=>`
+    <div class="clock-card" id="clkc_${f.id}"
+         onclick="tapClock('${f.id}')"
+         ontouchstart="tapClock('${f.id}')"
+         style="color:${f.col};border-color:${f.col}44">
+      <div class="c-rings">
+        <div class="c-ring" style="color:${f.col}"></div>
+        <div class="c-ring" style="color:${f.col}"></div>
+        <div class="c-ring" style="color:${f.col}"></div>
+      </div>
+      <canvas class="cc-canvas" id="clkv_${f.id}" width="100" height="100"></canvas>
+      <span class="cc-frac" style="color:${f.col}">${f.frac}</span>
+      <div class="cc-name">${f[LNG].n}</div>
+      <div class="cc-beats">${f[LNG].b}</div>
+
+      <!-- BARRA PROPORCIONAL — misma idea que Escena 2 -->
+      <div class="cc-bar-wrap">
+        <!-- Regla referencia -->
+        <div class="cc-bar-ref">${ticks}</div>
+        <!-- Barra proporcional de sonido -->
+        <div class="cc-bar-sound-outer">
+          <div class="cc-bar-sound-inner" id="clkbar_${f.id}"
+               style="width:${pct(f)};background:${f.col}22">
+            <div class="dyn-bar-segs" id="clkseg_${f.id}"></div>
+            <div class="dyn-bar-fill" id="clkfill_${f.id}"></div>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+
+  setTimeout(()=>FIGURAS.forEach(f=>{
+    drawClock(document.getElementById('clkv_'+f.id), f.val, f.col, f.frac);
+  }), 40);
+}
+let _lastTap=0;
+function tapClock(id){
+  const now=Date.now(); if(now-_lastTap<250) return; _lastTap=now;
+  const f=FIGURAS.find(x=>x.id===id); if(!f) return;
+  // Card pop animation
+  const card=document.getElementById('clkc_'+id);
+  if(card){ card.classList.add('playing'); setTimeout(()=>card.classList.remove('playing'),400); }
+  // ── SONIDO
+  ac(); playTone(f.freq, f.dur/1000, 'triangle', 0.42);
+  // ── VIBRACIÓN sincronizada con duración
+  vibFig(f);
+  // ── CURSOR compás
+  animCursor(f);
+  // ── RELOJ: sector animado desde 0 hasta f.val
+  const cv=document.getElementById('clkv_'+id);
+  if(cv) animClock(cv, f.val, f.col, f.dur, id);
+  // ── BARRA PROPORCIONAL: llena los segmentos dentro del contenedor proporcional
+  const segsEl=document.getElementById('clkseg_'+id);
+  const fillEl=document.getElementById('clkfill_'+id);
+  if(segsEl && fillEl){
+    const total=Math.max(1, Math.min(Math.round(1/f.val), 32));
+    segsEl.innerHTML=Array(total).fill(0).map((_,i)=>
+      `<div class="dyn-bar-seg" id="ckbs_${id}_${i}" style="background:${f.col}"></div>`).join('');
+    fillEl.style.cssText=`background:linear-gradient(90deg,${f.col},${f.col}cc);width:0%`;
+    animPropBar(fillEl, segsEl, 'ck_'+id, f.dur, f.col, false);
+  }
+  _played.add(f.id); updateStars();
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 2 — BARRAS PROPORCIONALES + SILENCIOS
+══════════════════════════════════════════════════ */
+function renderScene2(){
+  // Silence SVG symbols — standard musical notation
+  const silSVGs={
+    redonda:    `<rect x="6" y="22" width="40" height="16" fill="currentColor" rx="2"/>`,
+    blanca:     `<rect x="6" y="22" width="40" height="16" fill="none" stroke="currentColor" stroke-width="3" rx="2"/>`,
+    negra:      `<path d="M8 20 Q26 14 44 20 L44 34 Q26 28 8 34 Z" fill="currentColor"/>`,
+    corchea:    `<line x1="26" y1="8" x2="26" y2="44" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                 <path d="M26 8 Q42 16 36 30" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round"/>`,
+    semicorchea:`<line x1="26" y1="6" x2="26" y2="44" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                 <path d="M26 6  Q42 14 36 26" stroke="currentColor" stroke-width="2.3" fill="none" stroke-linecap="round"/>
+                 <path d="M26 18 Q42 26 36 38" stroke="currentColor" stroke-width="2.3" fill="none" stroke-linecap="round"/>`,
+    fusa:       `<line x1="26" y1="4" x2="26" y2="44" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                 <path d="M26 4  Q41 11 35 22" stroke="currentColor" stroke-width="2.1" fill="none" stroke-linecap="round"/>
+                 <path d="M26 14 Q41 21 35 32" stroke="currentColor" stroke-width="2.1" fill="none" stroke-linecap="round"/>
+                 <path d="M26 24 Q41 31 35 42" stroke="currentColor" stroke-width="2.1" fill="none" stroke-linecap="round"/>`,
+    semifusa:   `<line x1="26" y1="3" x2="26" y2="44" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                 <path d="M26 3  Q40 9  34 19" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round"/>
+                 <path d="M26 11 Q40 17 34 27" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round"/>
+                 <path d="M26 19 Q40 25 34 35" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round"/>
+                 <path d="M26 27 Q40 33 34 43" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round"/>`,
+  };
+
+  const pct = f => (f.val * 100).toFixed(2) + '%';
+
+  // Reference ticks (1, 1/2, 1/4, 1/8 marks on the compás ruler)
+  const ticks = [25,50,75].map(p=>`<div class="bar-ref-tick" style="left:${p}%"></div>`).join('');
+
+  document.getElementById('barGrid').innerHTML = FIGURAS.map(f => `
+    <div class="bar-row" id="barrow_${f.id}" style="color:${f.col}"
+         onclick="tapBar('${f.id}','sound')"
+         ontouchstart="tapBar('${f.id}','sound')">
+
+      <!-- ÍCONOS: figura + silencio -->
+      <div class="bar-icons">
+        <div class="bar-fig-icon" style="color:${f.col}">
+          <svg viewBox="0 0 52 64">${f.svg}</svg>
+        </div>
+        <div class="bar-sil-icon" style="color:${f.col}88">
+          <svg viewBox="0 0 52 52">${silSVGs[f.id]||''}</svg>
+        </div>
+      </div>
+
+      <!-- INFO -->
+      <div class="bar-info">
+        <div class="bar-name" style="color:${f.col}">${f[LNG].n}</div>
+        <div class="bar-frac" style="color:${f.col}">${f.frac}</div>
+        <div class="bar-beats">${f[LNG].b}</div>
+      </div>
+
+      <!-- ZONA DE BARRAS -->
+      <div class="bar-zone">
+
+        <!-- Regla de referencia: 1 compás completo -->
+        <div class="bar-zone-lbl">${LNG==='es'?'1 compás completo':'1 full measure'}</div>
+        <div class="bar-reference">${ticks}</div>
+
+        <!-- BARRA SONIDO proporcional -->
+        <div class="bar-zone-lbl" style="color:${f.col}88">
+          ${LNG==='es'?'▶ sonido':'▶ sound'} — ${f.frac}
+        </div>
+        <div class="bar-sound-wrap">
+          <div class="bar-sound-prop" id="bsp_${f.id}" style="width:${pct(f)};background:${f.col}22;">
+            <div class="dyn-bar-segs" id="seg_${f.id}"></div>
+            <div class="dyn-bar-fill" id="fill_${f.id}"></div>
+            <div class="bar-frac-tag" style="color:${f.col}">${f.frac}</div>
+          </div>
+        </div>
+
+        <!-- BARRA SILENCIO proporcional — toca aquí para el silencio -->
+        <div class="bar-zone-lbl" style="color:${f.col}55">
+          ${LNG==='es'?'— silencio':'— rest'} — ${f.frac}
+        </div>
+        <div class="bar-silence-wrap" onclick="event.stopPropagation();tapBar('${f.id}','silence')"
+             ontouchstart="event.stopPropagation();tapBar('${f.id}','silence')">
+          <div class="bar-silence-prop" id="silp_${f.id}" style="width:${pct(f)}">
+            <div class="dyn-sil-fill" id="silfill_${f.id}"
+                 style="background:linear-gradient(90deg,${f.col}44,${f.col}22)"></div>
+            <div class="bar-sil-label">${LNG==='es'?'silencio':'rest'}</div>
+          </div>
+        </div>
+
+      </div><!-- bar-zone -->
+    </div>`).join('');
+}
+
+function tapBar(id, type){
+  const now=Date.now(); if(now-_lastTap<200) return; _lastTap=now;
+  const f=FIGURAS.find(x=>x.id===id); if(!f) return;
+  const isSilence = (type==='silence');
+  const row=document.getElementById('barrow_'+id);
+  if(row){ row.classList.add('playing'); setTimeout(()=>row.classList.remove('playing'),Math.min(f.dur,1200)); }
+
+  // SONIDO
+  if(!isSilence){
+    playTone(f.freq, f.dur/1000,'triangle',0.42);
+    vibFig(f);
+    // Animate SOUND bar
+    const segs=document.getElementById('seg_'+id);
+    const fill=document.getElementById('fill_'+id);
+    if(segs&&fill){
+      const total=Math.min(Math.round(1/f.val),32);
+      segs.innerHTML=Array(total).fill(0).map((_,i)=>
+        `<div class="dyn-bar-seg" id="bs2_${id}_${i}" style="background:${f.col}"></div>`).join('');
+      fill.style.cssText=`background:linear-gradient(90deg,${f.col},${f.col}cc);width:0%`;
+      animPropBar(fill, segs, id, f.dur, f.col, false);
+    }
+  } else {
+    // SILENCIO: vibración suave diferente (2 pulsos cortos)
+    vib([30,40,30]);
+    // Animate SILENCE bar — tiempo pasa sin sonido
+    const silFill=document.getElementById('silfill_'+id);
+    if(silFill){
+      silFill.style.width='0%';
+      animSilBar(silFill, id+'_sil', f.dur, f.col);
+    }
+  }
+  animCursor(f);
+  _played.add(isSilence ? 'sil_'+id : id);
+  updateStars();
+}
+
+let _propBarRafs={};
+function animPropBar(fillEl, segsEl, id, durMs, col, isSil){
+  if(_propBarRafs[id]) cancelAnimationFrame(_propBarRafs[id]);
+  const total=segsEl?segsEl.children.length:0;
+  fillEl.style.width='0%';
+  const t0=performance.now();
+  function fr(ts){
+    const p=Math.min((ts-t0)/durMs,1);
+    fillEl.style.width=(p*100)+'%';
+    if(segsEl){
+      const lit=Math.floor(p*total);
+      for(let i=0;i<total;i++){
+        const s=segsEl.children[i]; if(s) s.classList.toggle('lit',i<lit);
+      }
+    }
+    if(p<1) _propBarRafs[id]=requestAnimationFrame(fr);
+    else fillEl.style.width='100%';
+  }
+  _propBarRafs[id]=requestAnimationFrame(fr);
+}
+
+function animSilBar(fillEl, id, durMs, col){
+  if(_propBarRafs[id]) cancelAnimationFrame(_propBarRafs[id]);
+  fillEl.style.width='0%';
+  const t0=performance.now();
+  function fr(ts){
+    const p=Math.min((ts-t0)/durMs,1);
+    fillEl.style.width=(p*100)+'%';
+    // pulsing opacity to show "time passing without sound"
+    fillEl.style.opacity= 0.4 + Math.sin(p*Math.PI)*0.6;
+    if(p<1) _propBarRafs[id]=requestAnimationFrame(fr);
+    else{ fillEl.style.width='100%'; fillEl.style.opacity='.3'; }
+  }
+  _propBarRafs[id]=requestAnimationFrame(fr);
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 3 — TOCA Y ESCUCHA
+══════════════════════════════════════════════════ */
+function renderScene3(){
+  document.getElementById('touchFigs').innerHTML=FIGURAS.map(f=>`
+    <div class="touch-card" id="tc_${f.id}" onclick="tapTouch('${f.id}',false)" style="color:${f.col};border-color:${f.col}44">
+      <div class="c-rings"><div class="c-ring" style="color:${f.col}"></div><div class="c-ring" style="color:${f.col}"></div><div class="c-ring" style="color:${f.col}"></div></div>
+      <div class="tc-type" style="color:${f.col}88">${LNG==='es'?'figura':'note'}</div>
+      <div class="tc-fig" style="color:${f.col}"><svg viewBox="0 0 52 64">${f.svg}</svg></div>
+      <div class="tc-name">${f[LNG].n}</div>
+      <span class="tc-frac" style="color:${f.col}">${f.frac}</span>
+      <div class="tc-beats">${f[LNG].b}</div>
+    </div>`).join('');
+
+  // Silence SVG symbols for touch cards
+  const silSVGs3={
+    redonda:    `<rect x="6" y="16" width="40" height="18" fill="currentColor" rx="2"/>`,
+    blanca:     `<rect x="6" y="16" width="40" height="18" fill="none" stroke="currentColor" stroke-width="3.5" rx="2"/>`,
+    negra:      `<path d="M6 14 Q26 8 46 14 L46 30 Q26 24 6 30 Z" fill="currentColor"/>`,
+    corchea:    `<line x1="26" y1="6" x2="26" y2="46" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+                 <path d="M26 6 Q44 15 38 30" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+    semicorchea:`<line x1="26" y1="5" x2="26" y2="46" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+                 <path d="M26 5  Q44 13 38 25" stroke="currentColor" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+                 <path d="M26 18 Q44 26 38 38" stroke="currentColor" stroke-width="2.8" fill="none" stroke-linecap="round"/>`,
+    fusa:       `<line x1="26" y1="4" x2="26" y2="46" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+                 <path d="M26 4  Q43 11 37 22" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                 <path d="M26 14 Q43 21 37 32" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                 <path d="M26 24 Q43 31 37 42" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round"/>`,
+    semifusa:   `<line x1="26" y1="3" x2="26" y2="46" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+                 <path d="M26 3  Q42 9  36 19" stroke="currentColor" stroke-width="2.3" fill="none" stroke-linecap="round"/>
+                 <path d="M26 11 Q42 17 36 27" stroke="currentColor" stroke-width="2.3" fill="none" stroke-linecap="round"/>
+                 <path d="M26 19 Q42 25 36 35" stroke="currentColor" stroke-width="2.3" fill="none" stroke-linecap="round"/>
+                 <path d="M26 27 Q42 33 36 43" stroke="currentColor" stroke-width="2.3" fill="none" stroke-linecap="round"/>`,
+  };
+
+  document.getElementById('touchSils').innerHTML=SILENCIOS.map(s=>{
+    const baseId=s.id.replace('sil_','');
+    return `
+    <div class="touch-card" id="tc_${s.id}" onclick="tapTouch('${s.id}',true)"
+         style="color:${s.col}99;border-color:${s.col}44;border-style:dashed;
+                background:rgba(255,255,255,.03)">
+      <div class="c-rings">
+        <div class="c-ring" style="color:${s.col}66"></div>
+        <div class="c-ring" style="color:${s.col}66"></div>
+        <div class="c-ring" style="color:${s.col}66"></div>
+      </div>
+      <div class="tc-type" style="color:${s.col}77">
+        ${LNG==='es'?'🤫 silencio':'🤫 rest'}
+      </div>
+      <!-- Símbolo del silencio -->
+      <div class="tc-fig" style="color:${s.col}cc">
+        <svg viewBox="0 0 52 52">${silSVGs3[baseId]||'<text x="26" y="30" text-anchor="middle" font-size="28" fill="currentColor">—</text>'}</svg>
+      </div>
+      <div class="tc-name" style="color:${s.col}bb">${s[LNG].n}</div>
+      <span class="tc-frac" style="color:${s.col}99">${s.frac}</span>
+      <div class="tc-beats" style="color:#475569">${s[LNG].b}</div>
+    </div>`;
+  }).join('');
+
+  // init live display clock
+  drawClock(document.getElementById('ldClock'),0,'#475569',null);
+}
+function tapTouch(id, isSil){
+  const now=Date.now(); if(now-_lastTap<250) return; _lastTap=now;
+  const all=[...FIGURAS,...SILENCIOS];
+  const f=all.find(x=>x.id===id); if(!f) return;
+  const card=document.getElementById('tc_'+id);
+  if(card){ card.classList.add('playing'); setTimeout(()=>card.classList.remove('playing'),400); }
+
+  const isSilence = isSil || !!f.isSilence;
+  const base = isSilence ? (FIGURAS.find(x=>x.id===id.replace('sil_',''))||f) : f;
+
+  // ── NOMBRE en panel vivo
+  const nameEl=document.getElementById('ldName');
+  nameEl.textContent = isSilence ? '🤫 '+f[LNG].n : f[LNG].n;
+  nameEl.style.color = base.col;
+
+  // ── AJUSTAR ANCHO del contenedor proporcional al valor de la figura
+  const propWrap=document.getElementById('ldSoundProp');
+  if(propWrap){
+    propWrap.style.width = (base.val*100).toFixed(2)+'%';
+    propWrap.style.background = isSilence ? 'rgba(255,255,255,.05)' : base.col+'22';
+  }
+  const sndLbl=document.getElementById('ldSoundLbl');
+  if(sndLbl) sndLbl.textContent = isSilence
+    ? (LNG==='es'?'— silencio ':'— rest ')+base.frac
+    : (LNG==='es'?'▶ sonido ':'▶ sound ')+base.frac;
+
+  const segsEl=document.getElementById('ldBarSegs');
+  const fillEl=document.getElementById('ldBarFill');
+  const clk   =document.getElementById('ldClock');
+  const wave  =document.getElementById('ldWave');
+  const total =Math.max(1, Math.min(Math.round(1/base.val), 32));
+
+  if(isSilence){
+    // ── SILENCIO ────────────────────────────────
+    vib([25,40,25]);            // patrón corto = silencio
+    animCursor(base);
+    if(clk) animClock(clk, 0, base.col, base.dur, 'ld');   // reloj: sector vacío (tiempo pasa)
+    if(segsEl) segsEl.innerHTML=Array(total).fill(0).map((_,i)=>
+      `<div class="dyn-bar-seg" id="ldbs_${i}" style="background:rgba(255,255,255,.35)"></div>`).join('');
+    if(fillEl){
+      fillEl.style.cssText=`background:rgba(255,255,255,.15);width:0%;
+        border:1px dashed rgba(255,255,255,.3);border-radius:5px`;
+      animPropBar(fillEl, segsEl, 'ld_sil', base.dur, base.col, true);
+    }
+    if(wave) drawWave(wave, base.col, base.val, base.dur, true);
+
+  } else {
+    // ── FIGURA CON SONIDO ────────────────────────
+    ac();
+    playTone(f.freq, f.dur/1000, 'triangle', 0.42);
+    vibFig(f);
+    animCursor(f);
+    if(clk) animClock(clk, f.val, f.col, f.dur, 'ld');     // reloj: sector anima hasta f.val
+    if(segsEl) segsEl.innerHTML=Array(total).fill(0).map((_,i)=>
+      `<div class="dyn-bar-seg" id="ldbs_${i}" style="background:${f.col}"></div>`).join('');
+    if(fillEl){
+      fillEl.style.cssText=`background:linear-gradient(90deg,${f.col},${f.col}cc);width:0%;border:none`;
+      animPropBar(fillEl, segsEl, 'ld_snd', f.dur, f.col, false);
+    }
+    if(wave) drawWave(wave, f.col, f.val, f.dur, false);
+  }
+  _played.add(id); updateStars();
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 4 — DRAG AND DROP
+══════════════════════════════════════════════════ */
+const DND_ROUNDS=[
+  { fig: FIGURAS[0], distract:[FIGURAS[1],FIGURAS[2],FIGURAS[3]] },
+  { fig: FIGURAS[1], distract:[FIGURAS[0],FIGURAS[2],FIGURAS[3]] },
+  { fig: FIGURAS[2], distract:[FIGURAS[0],FIGURAS[1],FIGURAS[3]] },
+  { fig: FIGURAS[3], distract:[FIGURAS[0],FIGURAS[2],FIGURAS[4]] },
+  { fig: FIGURAS[4], distract:[FIGURAS[2],FIGURAS[3],FIGURAS[5]] },
+  { fig: FIGURAS[5], distract:[FIGURAS[3],FIGURAS[4],FIGURAS[6]] },
+  { fig: FIGURAS[6], distract:[FIGURAS[4],FIGURAS[5],FIGURAS[0]] },
+];
+let _dndRound=0, _dndScore=0, _dndAnswered=false;
+
+function renderScene4(){ buildDndRound(); }
+
+function buildDndRound(){
+  _dndAnswered=false;
+  const round=DND_ROUNDS[_dndRound % DND_ROUNDS.length];
+  const target=round.fig;
+  const allItems=[target,...round.distract].sort(()=>Math.random()-.5);
+
+  // Drop zones: show 4 fractions including the correct one
+  const fracOptions=[target.frac,...round.distract.map(f=>f.frac)].sort(()=>Math.random()-.5);
+  document.getElementById('dndZones').innerHTML=fracOptions.map(frac=>`
+    <div class="drop-zone" id="dz_${frac.replace('/','_')}"
+         data-frac="${frac}"
+         ondragover="event.preventDefault();this.classList.add('over')"
+         ondragleave="this.classList.remove('over')"
+         ondrop="dropFig(event,this)"
+         ontouchend="touchDropZone(event,this)">
+      <div class="dz-label">${frac}</div>
+    </div>`).join('');
+
+  // Draggable items
+  document.getElementById('dndItems').innerHTML=allItems.map(f=>`
+    <div class="drag-item" id="di_${f.id}"
+         draggable="true"
+         data-id="${f.id}" data-frac="${f.frac}"
+         ondragstart="dragStart(event)"
+         ontouchstart="touchStart(event)"
+         ontouchmove="touchMove(event)"
+         ontouchend="touchEndItem(event)"
+         style="color:${f.col};border-color:${f.col}44">
+      <div class="di-icon"><svg viewBox="0 0 52 64">${f.svg}</svg></div>
+      <div class="di-label" style="color:${f.col}">${f.frac}</div>
+    </div>`).join('');
+
+  document.getElementById('dndFeedback').textContent='';
+  document.getElementById('dndScore').textContent=`${_dndScore} / ${_dndRound}`;
+  document.getElementById('dndNextBtn').classList.remove('show');
+  document.getElementById('dndPlayBtn').classList.remove('playing');
+
+  // play sound immediately
+  playDndSound();
+}
+
+function playDndSound(){
+  const round=DND_ROUNDS[_dndRound % DND_ROUNDS.length];
+  const f=round.fig; ac();
+  playTone(f.freq,f.dur/1000,'triangle',.42);
+  vibFig(f);
+  const btn=document.getElementById('dndPlayBtn');
+  btn.classList.add('playing'); setTimeout(()=>btn.classList.remove('playing'),500);
+  animCursor(f);
+}
+
+// Drag API
+let _dragFrac='', _dragId='';
+function dragStart(e){ _dragFrac=e.target.dataset.frac; _dragId=e.target.dataset.id; }
+function dropFig(e,zone){
+  e.preventDefault(); zone.classList.remove('over');
+  checkDnd(zone, _dragFrac, _dragId);
+}
+
+// Touch API
+let _touchEl=null, _touchClone=null;
+function touchStart(e){
+  _touchEl=e.currentTarget;
+  _dragFrac=_touchEl.dataset.frac; _dragId=_touchEl.dataset.id;
+  _touchClone=_touchEl.cloneNode(true);
+  _touchClone.style.cssText=`position:fixed;pointer-events:none;opacity:.85;z-index:5000;width:62px;height:62px;border-radius:12px;transition:none`;
+  document.body.appendChild(_touchClone);
+  const touch=e.touches[0];
+  _touchClone.style.left=(touch.clientX-31)+'px';
+  _touchClone.style.top=(touch.clientY-31)+'px';
+}
+function touchMove(e){
+  e.preventDefault();
+  const touch=e.touches[0];
+  if(_touchClone){ _touchClone.style.left=(touch.clientX-31)+'px'; _touchClone.style.top=(touch.clientY-31)+'px'; }
+  document.querySelectorAll('.drop-zone').forEach(dz=>{
+    const r=dz.getBoundingClientRect();
+    if(touch.clientX>r.left&&touch.clientX<r.right&&touch.clientY>r.top&&touch.clientY<r.bottom) dz.classList.add('over');
+    else dz.classList.remove('over');
+  });
+}
+function touchEndItem(e){
+  if(_touchClone){ _touchClone.remove(); _touchClone=null; }
+  const touch=e.changedTouches[0];
+  document.querySelectorAll('.drop-zone').forEach(dz=>{
+    dz.classList.remove('over');
+    const r=dz.getBoundingClientRect();
+    if(touch.clientX>r.left&&touch.clientX<r.right&&touch.clientY>r.top&&touch.clientY<r.bottom) checkDnd(dz,_dragFrac,_dragId);
+  });
+}
+function touchDropZone(e,zone){ zone.classList.remove('over'); }
+
+function checkDnd(zone, frac, itemId){
+  if(_dndAnswered) return;
+  const round=DND_ROUNDS[_dndRound % DND_ROUNDS.length];
+  const correct = frac === round.fig.frac;
+  const fb=document.getElementById('dndFeedback');
+  if(correct){
+    zone.classList.add('correct');
+    // put figure icon in zone
+    const figEl=document.getElementById('di_'+itemId);
+    if(figEl){ figEl.classList.add('used'); zone.innerHTML=`<div style="width:48px;height:48px;color:${round.fig.col}"><svg viewBox="0 0 52 64">${round.fig.svg}</svg></div>`; }
+    fb.textContent=LNG==='es'?'✅ ¡Correcto!':'✅ Correct!'; fb.style.color='#22c55e';
+    _dndScore++; _dndAnswered=true; addPts(15);
+    playSuccess(); vib([35,15,35]);
+    if(_dndScore>=3) setStar('s4',1);
+    if(_dndScore>=5) setStar('s4',2);
+    if(_dndScore>=7) setStar('s4',3);
+    document.getElementById('dndScore').textContent=`${_dndScore} / ${_dndRound+1}`;
+    document.getElementById('dndNextBtn').classList.add('show');
+  } else {
+    zone.classList.add('wrong'); setTimeout(()=>zone.classList.remove('wrong'),600);
+    fb.textContent=LNG==='es'?'❌ Intenta de nuevo':'❌ Try again'; fb.style.color='#ef4444';
+    playFail(); vib(150);
+  }
+}
+function nextDndRound(){
+  _dndRound++; buildDndRound();
+}
+
+/* ══════════════════════════════════════════════════
+   ESCENA 5 — SECTORES CIRCULARES (EQUIPARTICIÓN)
+══════════════════════════════════════════════════ */
+// Levels: how many equal sectors fill the circle for this figure
+const EQ_LEVELS=[
+  { fig:FIGURAS[0], n:1, msg:{es:'1 sector llena el compás',en:'1 sector fills the measure'} },
+  { fig:FIGURAS[1], n:2, msg:{es:'2 sectores llenan el compás',en:'2 sectors fill the measure'} },
+  { fig:FIGURAS[2], n:4, msg:{es:'4 sectores llenan el compás',en:'4 sectors fill the measure'} },
+  { fig:FIGURAS[3], n:8, msg:{es:'8 sectores llenan el compás',en:'8 sectors fill the measure'} },
+  { fig:FIGURAS[4], n:16,msg:{es:'16 sectores',en:'16 sectors'} },
+];
+let _eqLevel=0, _eqScore=0, _eqFilled=0, _eqAnswered=false;
+
+function renderScene5(){ buildEqLevel(); buildEqLevelBtns(); }
+
+function buildEqLevelBtns(){
+  document.getElementById('eqLevel').innerHTML=EQ_LEVELS.map((l,i)=>`
+    <button class="eq-lbtn ${i===_eqLevel?'on':''}" onclick="setEqLevel(${i})">${l.fig.frac}</button>`).join('');
+}
+function setEqLevel(i){ _eqLevel=i; buildEqLevel(); buildEqLevelBtns(); }
+
+function buildEqLevel(){
+  const lvl=EQ_LEVELS[_eqLevel];
+  const f=lvl.fig; const n=lvl.n;
+  _eqFilled=0; _eqAnswered=false;
+
+  // Target clock
+  const tcv=document.getElementById('eqTargetCanvas');
+  drawClock(tcv, f.val, f.col, f.frac);
+  document.getElementById('eqTargetFrac').textContent=f.frac; document.getElementById('eqTargetFrac').style.color=f.col;
+  document.getElementById('eqTargetName').textContent=f[LNG].n; document.getElementById('eqTargetName').style.color='#94a3b8';
+
+  // Build canvas
+  const bcv=document.getElementById('eqBuildCanvas');
+  drawEqBuild(bcv, f.col, 0, n);
+
+  // Drop slots
+  document.getElementById('eqSlots').innerHTML=Array(n).fill(0).map((_,i)=>`
+    <div class="eq-slot" id="eqs_${i}" data-idx="${i}"
+         ondragover="event.preventDefault();this.classList.add('over')"
+         ondragleave="this.classList.remove('over')"
+         ondrop="dropSector(event,this)"
+         ontouchend="touchDropSector(event,this)"
+         style="border-color:${f.col}44;width:${n>8?44:n>4?52:60}px;height:${n>8?44:n>4?52:60}px">
+    </div>`).join('');
+
+  // Bank of sectors: correct ones + distractors
+  const correct=Array(n).fill({frac:f.frac,col:f.col,val:f.val,id:'correct_'+f.id});
+  // add 2 distractors
+  const distractors=FIGURAS.filter(x=>x.id!==f.id).slice(0,2).map(d=>({frac:d.frac,col:d.col,val:d.val,id:'dist_'+d.id}));
+  const bank=[...correct,...distractors].sort(()=>Math.random()-.5).slice(0,Math.min(n+2,14));
+
+  document.getElementById('eqBank').innerHTML=bank.map((s,i)=>`
+    <div class="sector-item" id="sec_${i}"
+         draggable="true" data-frac="${s.frac}" data-col="${s.col}" data-val="${s.val}" data-correct="${s.id.startsWith('correct')}"
+         ondragstart="dragSector(event)"
+         ontouchstart="touchSectorStart(event)"
+         ontouchmove="touchSectorMove(event)"
+         ontouchend="touchSectorEnd(event)">
+      <canvas id="scv_${i}" width="44" height="44"></canvas>
+      <div class="si-lbl" style="color:${s.col}">${s.frac}</div>
+    </div>`).join('');
+
+  setTimeout(()=>{
+    bank.forEach((s,i)=>{
+      const cv=document.getElementById('scv_'+i);
+      if(cv) drawSector(cv,s.val,s.col);
+    });
+  },40);
+
+  document.getElementById('eqResult').textContent='';
+  document.getElementById('eqNextBtn').classList.remove('show');
+}
+
+function drawSector(cv,val,col){
+  const ctx=cv.getContext('2d'),W=cv.width,H=cv.height,cx=W/2,cy=H/2,r=W/2-2;
+  ctx.clearRect(0,0,W,H);
+  const ea=-Math.PI/2+val*Math.PI*2;
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,-Math.PI/2,ea); ctx.closePath();
+  ctx.fillStyle=col+'cc'; ctx.fill();
+  ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
+}
+
+function drawEqBuild(cv,col,filled,total){
+  const ctx=cv.getContext('2d'),W=cv.width,H=cv.height,cx=W/2,cy=H/2,r=W/2-4;
+  ctx.clearRect(0,0,W,H);
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.fillStyle='rgba(30,41,59,.8)'; ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.15)'; ctx.lineWidth=2; ctx.stroke();
+  const step=Math.PI*2/total;
+  for(let i=0;i<filled;i++){
+    const a0=-Math.PI/2+i*step, a1=-Math.PI/2+(i+1)*step;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r-2,a0,a1); ctx.closePath();
+    ctx.fillStyle=col+'bb'; ctx.fill();
+    ctx.strokeStyle='rgba(15,23,42,.5)'; ctx.lineWidth=1.5; ctx.stroke();
+  }
+  // label
+  ctx.fillStyle='rgba(255,255,255,.5)'; ctx.font=`bold ${Math.round(W*.12)}px Nunito,sans-serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(`${filled}/${total}`,cx,cy);
+}
+
+let _dragSectorData={};
+function dragSector(e){
+  _dragSectorData={frac:e.currentTarget.dataset.frac,col:e.currentTarget.dataset.col,val:+e.currentTarget.dataset.val,correct:e.currentTarget.dataset.correct==='true',itemId:e.currentTarget.id};
+}
+function dropSector(e,slot){
+  e.preventDefault(); slot.classList.remove('over');
+  placeSector(slot);
+}
+
+// Touch for sectors
+let _tSectorEl=null, _tSectorClone=null;
+function touchSectorStart(e){
+  _tSectorEl=e.currentTarget;
+  _dragSectorData={frac:_tSectorEl.dataset.frac,col:_tSectorEl.dataset.col,val:+_tSectorEl.dataset.val,correct:_tSectorEl.dataset.correct==='true',itemId:_tSectorEl.id};
+  _tSectorClone=_tSectorEl.cloneNode(true);
+  _tSectorClone.style.cssText='position:fixed;pointer-events:none;opacity:.85;z-index:5000;transition:none';
+  document.body.appendChild(_tSectorClone);
+  const t=e.touches[0];
+  _tSectorClone.style.left=(t.clientX-22)+'px'; _tSectorClone.style.top=(t.clientY-30)+'px';
+}
+function touchSectorMove(e){
+  e.preventDefault();
+  const t=e.touches[0];
+  if(_tSectorClone){ _tSectorClone.style.left=(t.clientX-22)+'px'; _tSectorClone.style.top=(t.clientY-30)+'px'; }
+  document.querySelectorAll('.eq-slot').forEach(s=>{
+    const r=s.getBoundingClientRect();
+    if(t.clientX>r.left&&t.clientX<r.right&&t.clientY>r.top&&t.clientY<r.bottom) s.classList.add('over');
+    else s.classList.remove('over');
+  });
+}
+function touchSectorEnd(e){
+  if(_tSectorClone){ _tSectorClone.remove(); _tSectorClone=null; }
+  const t=e.changedTouches[0];
+  document.querySelectorAll('.eq-slot').forEach(s=>{
+    s.classList.remove('over');
+    const r=s.getBoundingClientRect();
+    if(t.clientX>r.left&&t.clientX<r.right&&t.clientY>r.top&&t.clientY<r.bottom) placeSector(s);
+  });
+}
+function touchDropSector(e,slot){ slot.classList.remove('over'); }
+
+function placeSector(slot){
+  if(_eqAnswered) return;
+  const lvl=EQ_LEVELS[_eqLevel];
+  const isCorrect=_dragSectorData.correct;
+  if(!isCorrect){
+    slot.classList.add('wrong'); setTimeout(()=>slot.classList.remove('wrong'),600);
+    document.getElementById('eqResult').textContent=LNG==='es'?'❌ Esa fracción no encaja':'❌ That fraction does not fit';
+    document.getElementById('eqResult').style.color='#ef4444';
+    playFail(); vib(150);
+    return;
+  }
+  // mark slot filled
+  slot.classList.add('filled');
+  slot.style.borderColor=_dragSectorData.col;
+  slot.innerHTML=`<canvas width="50" height="50" id="slotcv_${slot.dataset.idx}"></canvas>`;
+  setTimeout(()=>drawSector(document.getElementById('slotcv_'+slot.dataset.idx),_dragSectorData.val,_dragSectorData.col),20);
+  // mark sector used
+  const secEl=document.getElementById(_dragSectorData.itemId);
+  if(secEl) secEl.classList.add('used');
+  _eqFilled++;
+  // update build canvas
+  drawEqBuild(document.getElementById('eqBuildCanvas'),lvl.fig.col,_eqFilled,lvl.n);
+  playTone(lvl.fig.freq,.3,'triangle',.3); vib(40);
+
+  if(_eqFilled>=lvl.n){
+    _eqAnswered=true; _eqScore++;
+    document.getElementById('eqResult').textContent=LNG==='es'?`🎉 ¡Completaste el compás! ${lvl.msg.es}`:`🎉 Measure complete! ${lvl.msg.en}`;
+    document.getElementById('eqResult').style.color='#22c55e';
+    playSuccess(); vib([40,20,40,20,60]); confetti();
+    addPts(20);
+    if(_eqScore>=1) setStar('s5',1);
+    if(_eqScore>=2) setStar('s5',2);
+    if(_eqScore>=3) setStar('s5',3);
+    document.getElementById('eqNextBtn').classList.add('show');
+  }
+}
+function nextEqRound(){
+  _eqLevel=(_eqLevel+1)%EQ_LEVELS.length; buildEqLevel(); buildEqLevelBtns();
+}
+
+/* ══════════════════════════════════════════════════
+   SCENE NAVIGATION
+══════════════════════════════════════════════════ */
+let _curScene=1;
+const TOTAL_SCENES=6;
+
+function buildSceneNav(){
+  document.getElementById('sceneNav').innerHTML=Array(TOTAL_SCENES).fill(0).map((_,i)=>`
+    <div class="sdot ${i===0?'on':''}" id="sdot${i+1}" onclick="jumpScene(${i+1})"></div>`).join('');
+}
+
+function goScene(dir){
+  const next=_curScene+dir;
+  if(next<1||next>TOTAL_SCENES) return;
+  jumpScene(next);
+}
+
+function jumpScene(n){
+  document.querySelector(`.scene.on`)?.classList.remove('on');
+  document.querySelectorAll('.sdot').forEach((d,i)=>d.classList.toggle('on',i===n-1));
+  document.getElementById(`sc${n}`)?.classList.add('on');
+  _curScene=n;
+  document.getElementById('btnPrev').disabled=(n===1);
+  document.getElementById('btnNext').disabled=(n===TOTAL_SCENES);
+  vib(20);
+}
+
+/* ══════════════════════════════════════════════════
+   SPLASH
+══════════════════════════════════════════════════ */
+function closeSplash(){
+  ac();
+  const s=document.getElementById('splash');
+  s.classList.add('hide');
+  setTimeout(()=>s.style.display='none',700);
+  vib([30,20,30]);
+}
+function buildSplash(){
+  const colors=['#ef4444','#f97316','#eab308','#22c55e'];
+  const svgs=[FIGURAS[0].svg,FIGURAS[1].svg,FIGURAS[2].svg,FIGURAS[3].svg];
+  document.getElementById('spNotes').innerHTML=colors.map((c,i)=>`
+    <div class="sp-note" style="color:${c};width:44px;height:56px">
+      <svg viewBox="0 0 52 64" style="width:100%;height:100%">${svgs[i]}</svg>
+    </div>`).join('');
+}
+
+/* ══════════════════════════════════════════════════
+   CONFETTI
+══════════════════════════════════════════════════ */
+const CC=['#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#a855f7','#ec4899'];
+function confetti(){
+  const el=document.getElementById('conf');
+  for(let i=0;i<55;i++){
+    const p=document.createElement('div'); p.className='cp';
+    const s=5+Math.random()*9;
+    p.style.cssText=`left:${Math.random()*100}%;width:${s}px;height:${s}px;background:${CC[Math.floor(Math.random()*CC.length)]};border-radius:${Math.random()>.5?'50%':'3px'};animation-duration:${1.3+Math.random()*2}s;animation-delay:${Math.random()*.3}s;`;
+    el.appendChild(p); setTimeout(()=>p.remove(),3600);
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   MÓDULOS DE TESIS — datos para el modal
+══════════════════════════════════════════════════ */
+const MODULOS_TESIS=[
+  {num:'I',   tema:'¿Por qué se escucha el sonido?',
+   desc:'Producción y propagación del sonido. Vibración de cuerpos e instrumentos musicales.'},
+  {num:'II',  tema:'¿Cómo se distinguen los sonidos?',
+   desc:'Cualidades del sonido: frecuencia, intensidad. Monocordio y escala musical.'},
+  {num:'III', tema:'¿Qué es ritmo?',
+   desc:'Estructura rítmica, pulsaciones, velocidad del ritmo. Barras de sonido.'},
+  {num:'IV',  tema:'¿Cómo se mide la duración de los sonidos y los silencios en música?',
+   desc:'Figuras y silencios musicales. Fracciones de duración. Relación de orden. Valor relativo. ← ESTE MÓDULO', active:true},
+  {num:'V',   tema:'¿Cómo se construyen equivalencias?',
+   desc:'Equivalencias entre fracciones. Recubrimiento de segmentos. Signo igual como relación de igualdad.'},
+  {num:'VI',  tema:'¿Cómo completar unidades?',
+   desc:'Operaciones de adición y sustracción con fracciones expresadas en tiempo de duración.'},
+  {num:'VII', tema:'¿Qué es compás?',
+   desc:'Construcción de compases. Unidad de medida musical. Agrupamiento de tiempos en 2, 3 y 4.'},
+];
+function showAbout(){
+  const acc=document.getElementById('modulesAccordion');
+  if(acc) acc.innerHTML=MODULOS_TESIS.map(m=>`
+    <div style="margin-bottom:5px;border-radius:8px;overflow:hidden;
+                border:1px solid ${m.active?'rgba(34,197,94,.35)':'rgba(255,255,255,.08)'}">
+      <div style="padding:8px 12px;background:${m.active?'rgba(34,197,94,.1)':'rgba(255,255,255,.04)'};
+                  font-size:.76rem;font-weight:900;color:${m.active?'#22c55e':'#94a3b8'}">
+        Módulo ${m.num}: ${m.tema}
+      </div>
+      <div style="padding:6px 12px 8px;font-size:.72rem;color:#64748b;line-height:1.5">${m.desc}</div>
+    </div>`).join('');
+  document.getElementById('aboutModal').style.display='block';
+}
+function closeAbout(){ document.getElementById('aboutModal').style.display='none'; }
+
+/* ══════════════════════════════════════════════════
+   ESCENA 6 — ¡PONTE A PRUEBA!
+══════════════════════════════════════════════════ */
+let _gIdx=0,_gScore=0,_gAnswered=false,_gBank=[],_gTotal=10;
+function renderScene6(){ buildGame(); }
+
+function buildGameBank(){
+  const bank=[];
+  FIGURAS.forEach(f=>{
+    const wrong=FIGURAS.filter(x=>x.id!==f.id).sort(()=>Math.random()-.5).slice(0,3);
+    bank.push({type:'A',fig:f,
+      q:{es:'¿Cómo se llama esta figura musical?',en:'What is the name of this music note?'},
+      ans:f[LNG].n, opts:[f,...wrong].sort(()=>Math.random()-.5).map(x=>x[LNG].n)});
+    bank.push({type:'B',fig:f,
+      q:{es:'Escucha el sonido. ¿Qué fracción del compás dura?',en:'Listen. What fraction of the measure does it last?'},
+      ans:f.frac, opts:[f,...wrong].sort(()=>Math.random()-.5).map(x=>x.frac)});
+  });
+  const beatMap={redonda:'4',blanca:'2',negra:'1',corchea:'½'};
+  FIGURAS.slice(0,4).forEach(f=>{
+    const wb=['4','2','1','½','⅛','¼'].filter(x=>x!==beatMap[f.id]).slice(0,3);
+    bank.push({type:'C',fig:f,
+      q:{es:`¿Cuántos tiempos dura la ${f[LNG].n}?`,en:`How many beats does the ${f[LNG].n} last?`},
+      ans:beatMap[f.id], opts:[beatMap[f.id],...wb].sort(()=>Math.random()-.5)});
+  });
+  [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6]].forEach(([i,j])=>{
+    const a=FIGURAS[i],b=FIGURAS[j];
+    bank.push({type:'E',figs:[a,b],
+      q:{es:'¿Cuál figura dura MÁS tiempo?',en:'Which note lasts LONGER?'},
+      ans:a[LNG].n, opts:[a[LNG].n,b[LNG].n].sort(()=>Math.random()-.5)});
+  });
+  return bank.sort(()=>Math.random()-.5);
+}
+
+function buildGame(){
+  _gBank=buildGameBank(); _gIdx=0; _gScore=0; _gAnswered=false;
+  _gTotal=Math.min(10,_gBank.length);
+  document.getElementById('gameFinal').style.display='none';
+  document.getElementById('gameArea').style.display='block';
+  document.getElementById('gameTotal').textContent=_gTotal;
+  showGameQ();
+}
+
+function showGameQ(){
+  if(_gIdx>=_gTotal){ showGameFinal(); return; }
+  const q=_gBank[_gIdx]; _gAnswered=false;
+  document.getElementById('gameQ').textContent=_gIdx+1;
+  document.getElementById('gamePF').style.width=(_gIdx/_gTotal*100)+'%';
+  document.getElementById('gameScore').textContent=_gScore;
+
+  const figHtml=q.fig?`
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:14px">
+      <div style="width:64px;height:82px;color:${q.fig.col}">
+        <svg viewBox="0 0 52 64" style="width:100%;height:100%">${q.fig.svg}</svg>
+      </div>
+      ${q.type==='A'?'':
+        `<span style="font-family:'Fredoka',cursive;font-size:1.2rem;font-weight:700;color:${q.fig.col}">${q.fig.frac}</span>`}
+    </div>`:'';
+
+  const twoFigsHtml=q.figs?`
+    <div style="display:flex;gap:20px;justify-content:center;margin-bottom:14px;flex-wrap:wrap">
+      ${q.figs.map(f=>`
+        <div style="text-align:center">
+          <div style="width:54px;height:68px;color:${f.col};margin:0 auto 4px">
+            <svg viewBox="0 0 52 64" style="width:100%;height:100%">${f.svg}</svg>
+          </div>
+          <span style="font-family:'Fredoka',cursive;font-size:.85rem;font-weight:700;color:${f.col}">${f[LNG].n}</span><br>
+          <span style="font-size:.7rem;color:#64748b">${f.frac}</span>
+        </div>`).join('')}
+    </div>`:'';
+
+  const soundBtn=q.type==='B'?`
+    <div style="text-align:center;margin-bottom:14px">
+      <button id="gSndBtn"
+        style="font-family:'Fredoka',cursive;font-weight:700;font-size:.95rem;
+               padding:10px 24px;border-radius:50px;border:none;cursor:pointer;
+               background:linear-gradient(135deg,#3b82f6,#a855f7);color:white;
+               box-shadow:0 4px 14px rgba(59,130,246,.35)">
+        ▶ ${LNG==='es'?'Escuchar sonido':'Play sound'}
+      </button>
+    </div>`:'' ;
+
+  document.getElementById('gameArea').innerHTML=`
+    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;margin-bottom:12px">
+      <div style="font-family:'Fredoka',cursive;font-size:clamp(.9rem,3vw,1.1rem);font-weight:700;
+                  text-align:center;margin-bottom:14px;color:#e2e8f0;line-height:1.4">
+        ${q.q[LNG]}
+      </div>
+      ${figHtml}${twoFigsHtml}${soundBtn}
+      <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:12px">
+        ${q.opts.map(o=>`
+          <button class="game-opt" data-val="${o}"
+            style="font-family:'Fredoka',cursive;font-size:1rem;font-weight:700;
+                   padding:11px 22px;border-radius:14px;cursor:pointer;
+                   border:2px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);
+                   color:#e2e8f0;min-width:100px;text-align:center;transition:all .25s">
+            ${o}
+          </button>`).join('')}
+      </div>
+      <div id="gameFb" style="font-family:'Fredoka',cursive;font-size:1rem;font-weight:700;text-align:center;min-height:28px"></div>
+      <div style="text-align:center;margin-top:8px">
+        <button id="gameNxt"
+          style="display:none;font-family:'Fredoka',cursive;font-weight:700;font-size:.9rem;
+                 padding:10px 24px;border-radius:50px;border:none;cursor:pointer;
+                 background:linear-gradient(135deg,#fbbf24,#f97316);color:white;
+                 box-shadow:0 4px 14px rgba(251,191,36,.35);animation:popIn .3s var(--T)">
+          ${LNG==='es'?'Siguiente ➜':'Next ➜'}
+        </button>
+      </div>
+    </div>`;
+
+  // Wire up buttons after render
+  document.querySelectorAll('.game-opt').forEach(btn=>{
+    btn.addEventListener('click',()=>checkGame(btn.dataset.val, q.ans, btn));
+    btn.addEventListener('touchend',e=>{e.preventDefault();checkGame(btn.dataset.val,q.ans,btn);});
+  });
+  const nxtBtn=document.getElementById('gameNxt');
+  if(nxtBtn){ nxtBtn.addEventListener('click',()=>{_gIdx++;showGameQ();});
+              nxtBtn.addEventListener('touchend',e=>{e.preventDefault();_gIdx++;showGameQ();}); }
+  const sndBtn=document.getElementById('gSndBtn');
+  if(sndBtn) sndBtn.addEventListener('click',()=>{
+    playTone(q.fig.freq,q.fig.dur/1000,'triangle',.42);
+    vibFig(q.fig); animCursor(q.fig);
+  });
+
+  if(q.type==='B') setTimeout(()=>{
+    playTone(q.fig.freq,q.fig.dur/1000,'triangle',.38);
+    vibFig(q.fig); animCursor(q.fig);
+  },400);
+}
+
+function checkGame(val,ans,btn){
+  if(_gAnswered) return; _gAnswered=true;
+  document.querySelectorAll('.game-opt').forEach(b=>b.style.pointerEvents='none');
+  const fb=document.getElementById('gameFb');
+  if(val===ans){
+    btn.style.cssText+=';background:rgba(34,197,94,.25);border-color:#22c55e;color:#22c55e';
+    fb.textContent=LNG==='es'?'✅ ¡Correcto! +10 puntos':'✅ Correct! +10 points';
+    fb.style.color='#22c55e'; _gScore+=10;
+    document.getElementById('gameScore').textContent=_gScore;
+    playSuccess(); vib([35,15,35]); if(Math.random()>.5) confetti();
+  } else {
+    btn.style.cssText+=';background:rgba(239,68,68,.2);border-color:#ef4444;color:#ef4444';
+    document.querySelectorAll('.game-opt').forEach(b=>{
+      if(b.dataset.val===ans) b.style.cssText+=';background:rgba(34,197,94,.2);border-color:#22c55e;color:#22c55e';
+    });
+    fb.textContent=LNG==='es'?`❌ Era: ${ans}`:`❌ Answer: ${ans}`;
+    fb.style.color='#ef4444'; playFail(); vib(180);
+  }
+  const pct=_gScore/(_gTotal*10);
+  if(pct>=.3) setStar('s6',1); if(pct>=.6) setStar('s6',2); if(pct>=.9) setStar('s6',3);
+  const nxt=document.getElementById('gameNxt'); if(nxt) nxt.style.display='inline-block';
+}
+
+function showGameFinal(){
+  document.getElementById('gameArea').style.display='none';
+  document.getElementById('gameFinal').style.display='block';
+  const pct=_gScore/(_gTotal*10);
+  const emoji=pct>=.9?'🏆':pct>=.7?'🌟':pct>=.5?'👍':'💪';
+  const msgEs=pct>=.9?'¡Excelente! Dominas las figuras musicales y sus fracciones.':
+              pct>=.7?'¡Muy bien! Sigue practicando las figuras más pequeñas.':
+              pct>=.5?'¡Buen intento! Repasa las escenas anteriores.':
+              '¡Sigue practicando! Explora las escenas 1, 2 y 3 de nuevo.';
+  const msgEn=pct>=.9?'Excellent! You master musical notes and their fractions.':
+              pct>=.7?'Very good! Keep practicing the smaller notes.':
+              pct>=.5?'Good try! Review the previous scenes.':
+              'Keep practicing! Explore scenes 1, 2 and 3 again.';
+  document.getElementById('gfEmoji').textContent=emoji;
+  document.getElementById('gfTitle').textContent=LNG==='es'?'¡Completaste el desafío!':'Challenge complete!';
+  document.getElementById('gfScore').textContent=`${_gScore} / ${_gTotal*10}`;
+  document.getElementById('gfMsg').textContent=LNG==='es'?msgEs:msgEn;
+  if(pct>=.7){ confetti(); setTimeout(confetti,600); }
+  vib([50,25,50,25,100]);
+}
+function restartGame(){ buildGame(); }
+
+/* ══════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded',()=>{
+  document.body.addEventListener('touchstart',()=>ac(),{once:true,passive:true});
+  document.body.addEventListener('click',()=>ac(),{once:true});
+
+  buildSplash();
+  buildSceneNav();
+  buildStarsRow();
+  renderScene1();
+  renderScene2();
+  renderScene3();
+  renderScene4();
+  renderScene5();
+  renderScene6();
+
+  window.addEventListener('resize',()=>{
+    const wc=document.getElementById('ldWave');
+    if(wc) wc.width=wc.offsetWidth*2;
+  });
+});
+</script>
+</body>
+</html>
