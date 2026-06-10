@@ -51,8 +51,7 @@ Conde Solano, L. A. (2026). Figuras y Silencios [Software educativo].
 Universidad Complutense de Madrid.
 https://github.com/lconde02-arte/figuras-y-silencios
 ```
-> El DOI de Zenodo se añadirá aquí tras la primera release.
-
+> [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20613332.svg)](https://doi.org/10.5281/zenodo.20613332)
 ---
 
 ## Módulos de la propuesta completa
